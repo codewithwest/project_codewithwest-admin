@@ -1,0 +1,6 @@
+{
+  "appTitle": "codewithwest_admin",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
