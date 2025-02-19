@@ -21,20 +21,51 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Create User')),
-      body: Align(
-        alignment: Alignment.center,
-        // padding: const EdgeInsets.all(16.0),
+      body: Center(
         child: Column(
+          spacing: 20,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () => Navigator.pushReplacementNamed(
-                  context, CreateAdminUser.routeName),
-              child: const Text('Register'),
+            Container(
+              width: 200,
+              height: 75,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: const LinearGradient(colors: [
+                    Color.fromARGB(255, 125, 10, 255),
+                    Color.fromARGB(255, 0, 178, 209),
+                  ])),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent),
+                onPressed: () => Navigator.pushReplacementNamed(
+                    context, CreateAdminUser.routeName),
+                child: const Text(
+                  'Register',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.pushReplacementNamed(
-                  context, LoginAdminUser.routeName),
-              child: const Text('Login'),
+            Container(
+              width: 200,
+              height: 75,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: const LinearGradient(colors: [
+                    Color.fromARGB(255, 125, 10, 255),
+                    Color.fromARGB(255, 0, 178, 209),
+                  ])),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent),
+                onPressed: () => Navigator.pushReplacementNamed(
+                    context, LoginAdminUser.routeName),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           ],
         ),

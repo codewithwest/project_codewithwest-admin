@@ -1,4 +1,5 @@
 import 'package:codewithwest_admin/src/auth/login_admin_user.dart';
+import 'package:codewithwest_admin/src/helper/screen_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -34,71 +35,91 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
       }
     }
     ''';
-
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(title: const Text('Create User')),
-      body: Align(
+      body: Container(
+        margin: EdgeInsets.symmetric(
+            horizontal: screenWidth > ScreenBreakpoints.large
+                ? 300
+                : screenWidth > ScreenBreakpoints.medium
+                    ? 150
+                    : 30),
         alignment: Alignment.center,
         // padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Username';
-                  }
-                  return null;
+        key: _formKey,
+        child: Column(
+          spacing: 20,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TextFormField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Username';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Email';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Password';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 30),
+            Mutation(
+              options: MutationOptions(
+                // The options are here!
+                document: gql(createUserMutation),
+                onCompleted: (data) {
+                  // ... (handle successful creation)
+                },
+                onError: (error) {
+                  // ... (handle errors)
                 },
               ),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password';
-                  }
-                  return null;
-                },
-              ),
-              Mutation(
-                options: MutationOptions(
-                  // The options are here!
-                  document: gql(createUserMutation),
-                  onCompleted: (data) {
-                    // ... (handle successful creation)
-                  },
-                  onError: (error) {
-                    // ... (handle errors)
-                  },
-                ),
-                builder: (
-                  RunMutation runMutation,
-                  QueryResult? result,
-                ) {
-                  return Column(
-                    // Wrap in a Column to avoid layout issues
-                    children: [
-                      ElevatedButton(
+              builder: (
+                RunMutation runMutation,
+                QueryResult? result,
+              ) {
+                return Column(
+                  spacing: 20,
+
+                  // Wrap in a Column to avoid layout issues
+                  children: [
+                    Container(
+                      width: 200,
+                      height: 75,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          gradient: const LinearGradient(colors: [
+                            Color.fromARGB(255, 0, 178, 209),
+                            Color.fromARGB(255, 125, 10, 255),
+                          ])),
+                      child: ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             runMutation({
@@ -112,24 +133,34 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
                         },
                         child: const Text('Create'),
                       ),
-                      ElevatedButton(
+                    ),
+                    Container(
+                      width: 200,
+                      height: 75,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          gradient: const LinearGradient(colors: [
+                            Color.fromARGB(255, 125, 10, 255),
+                            Color.fromARGB(255, 0, 178, 209),
+                          ])),
+                      child: ElevatedButton(
                         onPressed: () => Navigator.pushReplacementNamed(
                             context, LoginAdminUser.routeName),
                         child: const Text('Login'),
                       ),
-                      if (result != null) // Check if result is not null
-                        if (result.isLoading)
-                          const CircularProgressIndicator()
-                        else if (result.hasException)
-                          Text(result.exception.toString())
-                        else if (result.data != null)
-                          Text('User created: ${result.data}'),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
+                    ),
+                    if (result != null) // Check if result is not null
+                      if (result.isLoading)
+                        const CircularProgressIndicator()
+                      else if (result.hasException)
+                        Text(result.exception.toString())
+                      else if (result.data != null)
+                        Text('User created: ${result.data}'),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
