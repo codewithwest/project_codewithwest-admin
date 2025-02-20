@@ -1,4 +1,5 @@
 import 'package:codewithwest_admin/src/auth/login_admin_user.dart';
+import 'package:codewithwest_admin/src/components/auth_text_field.dart';
 import 'package:codewithwest_admin/src/helper/screen_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -14,9 +15,27 @@ class CreateAdminUser extends StatefulWidget {
 
 class _CreateAdminUserState extends State<CreateAdminUser> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  String _userName = '';
+  String _email = '';
+  String _password = '';
+
+  void updateUserName(String newValue) {
+    setState(() {
+      _userName = newValue;
+    });
+  }
+
+  void updateEmail(String newValue) {
+    setState(() {
+      _email = newValue;
+    });
+  }
+
+  void updatePassword(String newValue) {
+    setState(() {
+      _password = newValue;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +56,31 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
     ''';
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(title: const Text('Create User')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text('Codewithwest Admin',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        shadowColor: Color.fromARGB(3, 31, 91, 151),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(150),
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Register',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
       body: Container(
         margin: EdgeInsets.symmetric(
             horizontal: screenWidth > ScreenBreakpoints.large
@@ -53,43 +96,24 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TextFormField(
-              controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Username';
-                }
-                return null;
-              },
+            AuthTextField(
+              onTextChanged: updateUserName,
+              hintText: "tabloitTinker",
+              icon: Icons.person,
+              validationText: "Username cannot be empty",
             ),
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Email';
-                }
-                return null;
-              },
+            AuthTextField(
+              onTextChanged: updateEmail,
+              hintText: "amdin@mail.com",
+              icon: Icons.email,
+              validationText: "Email cannot be empty",
             ),
-            TextFormField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Password';
-                }
-                return null;
-              },
+            AuthTextField(
+              onTextChanged: updatePassword,
+              hintText: "**********",
+              icon: Icons.password,
+              validationText: "Password cannot be empty",
             ),
-            SizedBox(height: 30),
             Mutation(
               options: MutationOptions(
                 // The options are here!
@@ -124,9 +148,9 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
                           if (_formKey.currentState!.validate()) {
                             runMutation({
                               "input": {
-                                'username': _usernameController.text,
-                                'email': _emailController.text,
-                                'password': _passwordController.text,
+                                'username': _userName,
+                                'email': _email,
+                                'password': _password,
                               }
                             });
                           }

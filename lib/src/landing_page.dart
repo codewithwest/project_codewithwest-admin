@@ -12,15 +12,14 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create User')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text('Codewithwest Admin',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+      ),
       body: Center(
         child: Column(
           spacing: 20,
@@ -33,7 +32,7 @@ class _LandingPageState extends State<LandingPage> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   gradient: const LinearGradient(colors: [
-                    Color.fromARGB(255, 125, 10, 255),
+                    Color.fromARGB(255, 85, 1, 124),
                     Color.fromARGB(255, 0, 178, 209),
                   ])),
               child: ElevatedButton(
