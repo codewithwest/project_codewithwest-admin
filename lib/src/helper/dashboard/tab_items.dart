@@ -1,3 +1,5 @@
+import 'package:codewithwest_admin/src/main/admin/projects/create_project_category.dart';
+
 import '/src/main/admin/projects/project_categories.dart';
 import '/src/main/admin/projects/projects.dart';
 import '/src/main/admin/user/admin_user_access_requests.dart';
@@ -23,7 +25,6 @@ final List<TabItem> tabs = [
   TabItem(
       title: "Admin User Requests",
       routeName: AdminUserAccessRequests.routeName),
-
   TabItem(
     title: 'Projects',
     routeName: Projects.routeName,
@@ -38,8 +39,6 @@ final List<TabItem> tabs = [
   ),
   TabItem(
     title: "Create Project Category",
-    routeName: "/create-project-category",
+    routeName: CreateProjectCategory.routeName,
   ),
-
-  // Add more tabs as needed
 ];

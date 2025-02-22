@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -13,13 +11,11 @@ class Projects extends StatefulWidget {
 }
 
 class _ProjectsState extends State<Projects> {
-  String? _filter; // Store the filter value
-  late List<dynamic> users = [];
+  // String? _filter; // Store the filter value
+  late List<dynamic> projects = [];
 
-  updateUsersData(result) {
-    // setState(() {
-    users = result.data?["getProjects"] ?? [];
-    // });
+  resolveProjects(result) {
+    return result?.data?["getProjects"] ?? [];
   }
 
   @override
@@ -34,7 +30,7 @@ class _ProjectsState extends State<Projects> {
               decoration: const InputDecoration(hintText: 'Filter by name'),
               onChanged: (value) {
                 setState(() {
-                  _filter = value; // Update the filter value
+                  // _filter = value; // Update the filter value
                 });
               },
             ),
@@ -50,14 +46,14 @@ class _ProjectsState extends State<Projects> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
-              "Users Found: ${users.length}" ?? "No users found",
+              "projects Found: ${projects.length}",
               textAlign: TextAlign.right,
             ),
           ),
           Expanded(
             child: Query(
               options: QueryOptions(
-                document: gql(Queries.getAdminUser),
+                document: gql(Queries.getProjects),
                 variables: {
                   'limit': 10, // Pass the filter variable to the query
                 },
@@ -71,18 +67,18 @@ class _ProjectsState extends State<Projects> {
                 if (result.hasException) {
                   return Text(result.exception.toString());
                 }
-                updateUsersData(result);
+                projects = resolveProjects(result);
                 return ListView.builder(
-                  itemCount: users.length,
+                  itemCount: projects.length,
                   itemBuilder: (context, index) {
-                    final user = users[index] as Map<String, dynamic>;
+                    final project = projects[index] as Map<String, dynamic>;
                     return Container(
                         // padding: const EdgeInsets.symmetric(horizontal: 5),
                         margin: const EdgeInsets.all(2),
                         child: ListTile(
                           onTap: () => Navigator.pushNamed(
-                              context, '/admin/user/admin-user',
-                              arguments: user),
+                              context, '/admin/projects/projects',
+                              arguments: project),
                           textColor: Colors.lightBlue,
                           iconColor: Colors.lightBlue,
                           shape: RoundedRectangleBorder(
@@ -95,13 +91,13 @@ class _ProjectsState extends State<Projects> {
                           leading: Container(
                             padding: const EdgeInsets.all(10),
                             child: Text(
-                              user['id'] as String,
+                              project['id'] as String,
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          title: Text(user['email'] as String),
-                          subtitle: Text(user['username']),
+                          title: Text(project['email'] as String),
+                          subtitle: Text(project['username']),
                           trailing: IconButton(
                             onPressed: () =>
                                 Navigator.popAndPushNamed(context, "/"),

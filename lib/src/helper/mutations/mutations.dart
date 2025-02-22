@@ -1,17 +1,28 @@
 class Mutations {
-  static const String createUserMutation = r'''
+  static const String createAdminUserMutation = r'''
       mutation createAdminUser($input: AdminUserInput!) {
         createAdminUser(input: $input) {
-          created_at
-          email
           id
-          last_login
+          username
+          email
           password
           role
           type
+          created_at
           updated_at
-          username
+          last_login
       }
     }
+    ''';
+
+  static const String createProjectCategory = r'''
+      mutation createProjectCategory($name: String!) {
+        createProjectCategory(name: $name) {
+          id
+          name
+          created_at
+          updated_at
+        }
+      }
     ''';
 }

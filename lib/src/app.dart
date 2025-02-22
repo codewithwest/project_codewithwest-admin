@@ -1,3 +1,6 @@
+import 'package:codewithwest_admin/src/main/admin/projects/create_project_category.dart';
+import 'package:codewithwest_admin/src/main/admin/user/admin_user_access_requests.dart';
+
 import '/src/main/admin/projects/project_categories.dart';
 import '/src/main/admin/projects/projects.dart' show Projects;
 import '/src/main/admin/user/create_admin_user.dart';
@@ -35,10 +38,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthLink authLink = AuthLink(
-      getToken: () async =>
-          'Bearer hgwvfekwyuedgfcblaeufhcbleuahrpeaifrvheiuvfhnliavhroeufhdvh',
-      // OR
-      // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
+      getToken: () async => 'Bearer whatebverthetokenis',
     );
 
     final Link link = authLink.concat(GraphQLConfig().httpLink);
@@ -134,6 +134,12 @@ class MyApp extends StatelessWidget {
                           context, ProjectCategories(), settingsController);
                     case Projects.routeName:
                       return checkAuth(context, Projects(), settingsController);
+                    case AdminUserAccessRequests.routeName:
+                      return checkAuth(context, AdminUserAccessRequests(),
+                          settingsController);
+                    case CreateProjectCategory.routeName:
+                      return checkAuth(
+                          context, CreateProjectCategory(), settingsController);
                     default:
                       return const InvalidRoute();
                   }

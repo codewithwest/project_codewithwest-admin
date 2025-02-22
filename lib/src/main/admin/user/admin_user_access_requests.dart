@@ -1,12 +1,10 @@
-import 'dart:math';
-
 import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AdminUserAccessRequests extends StatefulWidget {
   const AdminUserAccessRequests({super.key});
-  static const routeName = '/admin/user/admin-users';
+  static const routeName = '/admin/user/admin-user-access-requests';
 
   @override
   State<AdminUserAccessRequests> createState() =>
@@ -14,19 +12,17 @@ class AdminUserAccessRequests extends StatefulWidget {
 }
 
 class _AdminUserAccessRequestsState extends State<AdminUserAccessRequests> {
-  String? _filter; // Store the filter value
-  late List<dynamic> users = [];
+  // String? _filter; // Store the filter value
+  late List<dynamic> adminUserRequests = [];
 
-  updateUsersData(result) {
-    // setState(() {
-    users = result.data?["getAdminUserAccessRequests"] as List<dynamic>;
-    // });
+  resolverAdminUserRequests(result) {
+    return result?.data?["getAdminUserAccessRequests"] ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('GraphQL with Parameters')),
+      appBar: AppBar(title: const Text('Admin User Requests')),
       body: Column(
         children: [
           Padding(
@@ -35,7 +31,7 @@ class _AdminUserAccessRequestsState extends State<AdminUserAccessRequests> {
               decoration: const InputDecoration(hintText: 'Filter by name'),
               onChanged: (value) {
                 setState(() {
-                  _filter = value; // Update the filter value
+                  // _filter = value; // Update the filter value
                 });
               },
             ),
@@ -51,14 +47,14 @@ class _AdminUserAccessRequestsState extends State<AdminUserAccessRequests> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
-              "Users Found: ${users.length}" ?? "No users found",
+              "adminUserRequests Found: ${adminUserRequests.length}",
               textAlign: TextAlign.right,
             ),
           ),
           Expanded(
             child: Query(
               options: QueryOptions(
-                document: gql(Queries.getAdminUser),
+                document: gql(Queries.getAdminUserAccessRequests),
                 variables: {
                   'limit': 10, // Pass the filter variable to the query
                 },
@@ -72,18 +68,18 @@ class _AdminUserAccessRequestsState extends State<AdminUserAccessRequests> {
                 if (result.hasException) {
                   return Text(result.exception.toString());
                 }
-                updateUsersData(result);
+                adminUserRequests = resolverAdminUserRequests(result);
                 return ListView.builder(
-                  itemCount: users.length,
+                  itemCount: adminUserRequests.length,
                   itemBuilder: (context, index) {
-                    final user = users[index] as Map<String, dynamic>;
+                    final adminUserRequest = adminUserRequests[index];
                     return Container(
                         // padding: const EdgeInsets.symmetric(horizontal: 5),
                         margin: const EdgeInsets.all(2),
                         child: ListTile(
                           onTap: () => Navigator.pushNamed(
-                              context, '/admin/user/admin-user',
-                              arguments: user),
+                              context, '/admin/user/admin-user-access-request',
+                              arguments: adminUserRequest),
                           textColor: Colors.lightBlue,
                           iconColor: Colors.lightBlue,
                           shape: RoundedRectangleBorder(
@@ -96,13 +92,12 @@ class _AdminUserAccessRequestsState extends State<AdminUserAccessRequests> {
                           leading: Container(
                             padding: const EdgeInsets.all(10),
                             child: Text(
-                              user['id'] as String,
+                              adminUserRequest['id'] as String,
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          title: Text(user['email'] as String),
-                          subtitle: Text(user['username']),
+                          title: Text(adminUserRequest['email'] as String),
                           trailing: IconButton(
                             onPressed: () =>
                                 Navigator.popAndPushNamed(context, "/"),

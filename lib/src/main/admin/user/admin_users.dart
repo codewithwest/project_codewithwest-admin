@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:codewithwest_admin/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -13,19 +11,17 @@ class AdminUsers extends StatefulWidget {
 }
 
 class _AdminUsersState extends State<AdminUsers> {
-  String? _filter; // Store the filter value
+  // String? _filter; // Store the filter value
   late List<dynamic> users = [];
 
   updateUsersData(result) {
-    // setState(() {
-    users = result.data?["getAdminUsers"] as List<dynamic>;
-    // });
+    return result?.data?["getAdminUsers"] ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('GraphQL with Parameters')),
+      appBar: AppBar(title: const Text('Admin Users')),
       body: Column(
         children: [
           Padding(
@@ -34,7 +30,7 @@ class _AdminUsersState extends State<AdminUsers> {
               decoration: const InputDecoration(hintText: 'Filter by name'),
               onChanged: (value) {
                 setState(() {
-                  _filter = value; // Update the filter value
+                  // _filter = value; // Update the filter value
                 });
               },
             ),
@@ -50,7 +46,7 @@ class _AdminUsersState extends State<AdminUsers> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
-              "Users Found: ${users.length}" ?? "No users found",
+              "Users Found: ${users.length}",
               textAlign: TextAlign.right,
             ),
           ),
@@ -71,7 +67,7 @@ class _AdminUsersState extends State<AdminUsers> {
                 if (result.hasException) {
                   return Text(result.exception.toString());
                 }
-                updateUsersData(result);
+                users = updateUsersData(result);
                 return ListView.builder(
                   itemCount: users.length,
                   itemBuilder: (context, index) {

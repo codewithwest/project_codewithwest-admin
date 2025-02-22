@@ -18,15 +18,6 @@ void main() async {
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
-  final HttpLink link = HttpLink(
-      'http://localhost:3071/graphql'); // Replace with your GraphQL server URL
-
-  final ValueNotifier<GraphQLClient> client = ValueNotifier(
-    GraphQLClient(
-      link: link,
-      cache: GraphQLCache(), // Optional: Use a cache for better performance
-    ),
-  );
 
   runApp(
     MyApp(

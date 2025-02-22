@@ -1,52 +1,49 @@
-import 'package:codewithwest_admin/src/main/admin/user/admin_users.dart';
+import 'package:codewithwest_admin/src/helper/mutations/mutations.dart';
 
+import '/src/auth/request_admin_user_access.dart';
 import '/src/components/auth_text_field.dart';
-import '/src/helper/mutations/mutations.dart';
+import '/src/helper/queries/queries.dart';
 import '/src/helper/screen_breakpoints.dart';
+import '/src/main/admin/projects/project_categories.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class CreateAdminUser extends StatefulWidget {
-  const CreateAdminUser({super.key});
-
-  static const routeName = '/auth/admin-user-create';
+class CreateProjectCategory extends StatefulWidget {
+  const CreateProjectCategory({super.key});
+  static const routeName = '/admin/project/create-project-category';
 
   @override
-  State<CreateAdminUser> createState() => _CreateAdminUserState();
+  State<CreateProjectCategory> createState() => _CreateProjectCategoryState();
 }
 
-class _CreateAdminUserState extends State<CreateAdminUser> {
+class _CreateProjectCategoryState extends State<CreateProjectCategory> {
   final _formKey = GlobalKey<FormState>();
-  String _userName = '';
-  String _email = '';
-  String _password = '';
-  late String errorText = '';
-  void updateUserName(String newValue) {
-    setState(() {
-      _userName = newValue;
-    });
-  }
 
-  void updateEmail(String newValue) {
-    setState(() {
-      _email = newValue;
-    });
-  }
+  String _name = '';
 
-  void updatePassword(String newValue) {
+  late String errorMessage = '';
+
+  void _updateName(String newValue) {
     setState(() {
-      _password = newValue;
+      _name = newValue;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Codewithwest Admin',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Codewithwest Admin',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(244, 30, 131, 233),
+          ),
+        ),
         shadowColor: Color.fromARGB(3, 31, 91, 151),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -59,11 +56,11 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Create Admin User',
+              'Create Project Category',
               style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 2, 131, 236)),
             ),
           ),
         ),
@@ -76,48 +73,39 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
                     ? 150
                     : 30),
         alignment: Alignment.center,
+        // padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             spacing: 20,
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                errorText,
-                style: TextStyle(color: Colors.red, fontSize: 20),
+                errorMessage,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: screenWidth > ScreenBreakpoints.medium ? 20 : 16),
               ),
               AuthTextField(
-                onTextChanged: updateUserName,
-                hintText: "tabloitTinker",
-                icon: Icons.person,
-                validationText: "Username cannot be empty",
-              ),
-              AuthTextField(
-                onTextChanged: updateEmail,
-                hintText: "amdin@mail.com",
-                icon: Icons.email,
-                validationText: "Email cannot be empty",
-              ),
-              AuthTextField(
-                onTextChanged: updatePassword,
-                hintText: "**********",
-                icon: Icons.password,
-                validationText: "Password cannot be empty",
+                onTextChanged: _updateName,
+                hintText: "Project category name",
+                icon: Icons.category,
+                validationText: "Category name cannot be empty",
               ),
               Mutation(
                 options: MutationOptions(
                   // The options are here!
-                  document: gql(Mutations.createAdminUserMutation),
+                  document: gql(Mutations.createProjectCategory),
                   onCompleted: (data) {
                     if (data != null) {
                       Navigator.pushReplacementNamed(
-                          context, AdminUsers.routeName);
+                          context, ProjectCategories.routeName);
                     }
                   },
                   onError: (error) {
                     setState(() {
-                      errorText = error!.graphqlErrors[0].message;
+                      errorMessage = "${error?.graphqlErrors[0].message}";
                     });
                   },
                 ),
@@ -126,8 +114,7 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
                   QueryResult? result,
                 ) {
                   return Column(
-                    spacing: 20,
-
+                    spacing: 15,
                     // Wrap in a Column to avoid layout issues
                     children: [
                       Container(
@@ -136,18 +123,14 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             gradient: const LinearGradient(colors: [
-                              Color.fromARGB(255, 0, 178, 209),
                               Color.fromARGB(255, 125, 10, 255),
+                              Color.fromARGB(255, 0, 178, 209),
                             ])),
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               runMutation({
-                                "input": {
-                                  'username': _userName,
-                                  'email': _email,
-                                  'password': _password,
-                                }
+                                'name': _name,
                               });
                             }
                           },
@@ -158,7 +141,8 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
                         if (result.isLoading)
                           const CircularProgressIndicator()
                         else if (result.data != null)
-                          Text('User created Successfully'),
+                          Text('Login successful'),
+                      // Navigator.restorablePushNamed(context, Profile.routeName),
                     ],
                   );
                 },

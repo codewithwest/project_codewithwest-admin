@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -13,13 +11,11 @@ class ProjectCategories extends StatefulWidget {
 }
 
 class _ProjectCategoriesState extends State<ProjectCategories> {
-  String? _filter; // Store the filter value
-  late List<dynamic> users = [];
+  // String? _filter; // Store the filter value
+  late List<dynamic> projectCategories = [];
 
-  updateUsersData(result) {
-    // setState(() {
-    users = result.data?["getProjectCategories"] ?? [];
-    // });
+  resolveProjectCategories(result) {
+    return result?.data?["getProjectCategories"] ?? [];
   }
 
   @override
@@ -34,7 +30,7 @@ class _ProjectCategoriesState extends State<ProjectCategories> {
               decoration: const InputDecoration(hintText: 'Filter by name'),
               onChanged: (value) {
                 setState(() {
-                  _filter = value; // Update the filter value
+                  // _filter = value; // Update the filter value
                 });
               },
             ),
@@ -50,14 +46,14 @@ class _ProjectCategoriesState extends State<ProjectCategories> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
-              "Users Found: ${users.length}" ?? "No users found",
+              "Project Categories Found: ${projectCategories.length}",
               textAlign: TextAlign.right,
             ),
           ),
           Expanded(
             child: Query(
               options: QueryOptions(
-                document: gql(Queries.getAdminUser),
+                document: gql(Queries.getProjectCategories),
                 variables: {
                   'limit': 10, // Pass the filter variable to the query
                 },
@@ -71,18 +67,19 @@ class _ProjectCategoriesState extends State<ProjectCategories> {
                 if (result.hasException) {
                   return Text(result.exception.toString());
                 }
-                updateUsersData(result);
+                projectCategories = resolveProjectCategories(result);
+
                 return ListView.builder(
-                  itemCount: users.length,
+                  itemCount: projectCategories.length,
                   itemBuilder: (context, index) {
-                    final user = users[index] as Map<String, dynamic>;
+                    final projectCategory = projectCategories[index];
                     return Container(
                         // padding: const EdgeInsets.symmetric(horizontal: 5),
                         margin: const EdgeInsets.all(2),
                         child: ListTile(
                           onTap: () => Navigator.pushNamed(
-                              context, '/admin/user/admin-user',
-                              arguments: user),
+                              context, "/admin/projects/project-categories",
+                              arguments: projectCategory),
                           textColor: Colors.lightBlue,
                           iconColor: Colors.lightBlue,
                           shape: RoundedRectangleBorder(
@@ -95,13 +92,13 @@ class _ProjectCategoriesState extends State<ProjectCategories> {
                           leading: Container(
                             padding: const EdgeInsets.all(10),
                             child: Text(
-                              user['id'] as String,
+                              "${projectCategory['id']}",
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          title: Text(user['email'] as String),
-                          subtitle: Text(user['username']),
+                          title: Text(projectCategory['name'] as String),
+                          // subtitle: Text(user['username']),
                           trailing: IconButton(
                             onPressed: () =>
                                 Navigator.popAndPushNamed(context, "/"),
