@@ -1,3 +1,4 @@
+import 'package:codewithwest_admin/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -11,20 +12,10 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String? _filter; // Store the filter value
+  // String? _filter; // Store the filter value
 
   @override
   Widget build(BuildContext context) {
-    const String getUsersQuery = r'''
-      query getUser($id: ID!) { # $filter is the parameter
-        getUser(id: $id) { # Use the parameter in your query
-          id
-          username
-          password
-        }
-      }
-    ''';
-
     return Scaffold(
       appBar: AppBar(title: const Text('GraphQL with Parameters')),
       body: Column(
@@ -35,7 +26,7 @@ class _ProfileState extends State<Profile> {
               decoration: const InputDecoration(hintText: 'Filter by name'),
               onChanged: (value) {
                 setState(() {
-                  _filter = value; // Update the filter value
+                  // _filter = value; // Update the filter value
                 });
               },
             ),
@@ -43,7 +34,7 @@ class _ProfileState extends State<Profile> {
           Expanded(
             child: Query(
               options: QueryOptions(
-                document: gql(getUsersQuery),
+                document: gql(Queries.getAdminUser),
                 variables: {
                   'id': 1, // Pass the filter variable to the query
                 },

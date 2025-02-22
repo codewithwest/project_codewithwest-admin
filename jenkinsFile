@@ -1,0 +1,123 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm // Assuming you've configured your SCM in Jenkins
+            }
+        }
+
+        stage('Flutter Build Linux') {
+            steps {
+                sh '''
+                    flutter clean
+                    flutter pub get
+                    flutter build linux
+                '''
+            }
+        }
+
+        stage('Create Packaging Directory') {
+            steps {
+                sh '''
+                    mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/<your_app_name> packaging/usr/share/applications packaging/usr/share/icons/hicolor/scalable/apps
+                '''
+            }
+        }
+
+        stage('Copy Application Files') {
+            steps {
+                sh '''
+                    ARCH=$(uname -m) # Detect architecture (amd64, arm64, etc.)
+
+                    # Copy the application (adjust paths as needed)
+                    cp -r build/linux/$ARCH/<your_app_name> packaging/usr/lib/<your_app_name>
+                    cp build/linux/$ARCH/<your_app_name>/<your_app_name> packaging/usr/bin
+
+                    # Create symbolic link if needed:  Example
+                    # ln -s /usr/lib/<your_app_name>/<your_app_name> packaging/usr/bin/<your_app_name>
+                '''
+            }
+        }
+
+        stage('Create Control File') {
+            steps {
+                sh '''
+                    cat << EOF > packaging/DEBIAN/control
+                    Package: <your_package_name>
+                    Version: 1.0.0+${BUILD_NUMBER} # Use Jenkins build number for versioning
+                    Architecture: $(uname -m) # Dynamically set architecture
+                    Maintainer: Your Name <your.email@example.com>
+                    Description: A brief description of your application.
+                    Depends: libgtk-3-0, libstdc++6 # Add your dependencies! Use ldd
+                    Section: games # Or appropriate section
+                    Priority: optional
+                    EOF
+                '''
+            }
+        }
+
+        stage('Create Desktop Entry (Optional)') {
+            steps {
+                sh '''
+                    cat << EOF > packaging/usr/share/applications/<your_app_name>.desktop
+                    [Desktop Entry]
+                    Name=<Your Application Name>
+                    Comment=<A longer description>
+                    Exec=/usr/bin/<your_app_name>
+                    Icon=/<path/to/your/icon> # Add icon path
+                    Terminal=false
+                    Type=Application
+                    Categories=Application;Utility; # Or other categories
+                    EOF
+                '''
+                // Copy your icon file if you have one.
+                // sh 'cp your_icon.png packaging/usr/share/icons/hicolor/scalable/apps/'
+            }
+        }
+
+        stage('Build .deb Package') {
+            steps {
+                sh '''
+                    dpkg-deb --build packaging <your_package_name>.deb
+                '''
+            }
+            post {
+                always {
+                  archiveArtifacts artifacts: '<your_package_name>.deb', allowEmptyArchive: false
+                }
+            }
+        }
+    }
+}
+
+
+/////
+pipeline {
+    agent {
+        docker {
+            image 'your-docker-registry/your-flutter-build-image:latest' // Your Docker image
+            label 'docker-agent'  // Label for Docker agent (optional)
+            // volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]  If you need docker in docker
+            volumes: [ 'deb_output:/output' ] // Mount a volume for the .deb file
+        }
+    }
+    stages {
+        stage('Build in Docker') {
+            steps {
+                // No need for explicit 'flutter build' or packaging commands here,
+                // as they are now in the Dockerfile.
+
+                // If you are pushing your docker image, uncomment below
+                // sh 'docker push your-docker-registry/your-flutter-build-image:latest'
+
+            }
+        }
+        stage('Archive .deb Package') {
+            steps{
+                archiveArtifacts artifacts: '**/<your_package_name>.deb', allowEmptyArchive: false
+            }
+        }
+    }
+}

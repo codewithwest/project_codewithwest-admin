@@ -7,6 +7,8 @@ import 'src/settings/settings_service.dart';
 void main() async {
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
+  WidgetsFlutterBinding.ensureInitialized();
+  await initHiveForFlutter();
   final settingsController = SettingsController(SettingsService());
 
   // Load the user's preferred theme while the splash screen is displayed.
@@ -27,9 +29,8 @@ void main() async {
   );
 
   runApp(
-    GraphQLProvider(
-      client: client,
-      child: MyApp(settingsController: settingsController),
+    MyApp(
+      settingsController: settingsController,
     ),
   );
 }

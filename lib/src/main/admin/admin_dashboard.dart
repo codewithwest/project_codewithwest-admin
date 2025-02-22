@@ -1,6 +1,6 @@
-import 'package:codewithwest_admin/src/auth/login_admin_user.dart';
+import '/src/components/admin_app_bar.dart';
+import '/src/components/grid_tabs.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -12,22 +12,14 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create User')),
-      body: Align(
+      appBar: AdminAppBar(),
+      body: Container(
         alignment: Alignment.center,
-        // padding: const EdgeInsets.all(16.0),
-        child: Text("Admin User Has Logged Successfully!"),
+        child: GridTabs(),
       ),
     );
   }
-
-  // ... (dispose method)
 }

@@ -17,15 +17,18 @@ class SettingsController with ChangeNotifier {
   // also persisting the changes with the SettingsService.
   late ThemeMode _themeMode;
 
+  late bool _isLoggedIn;
+
   // Allow Widgets to read the user's preferred ThemeMode.
   ThemeMode get themeMode => _themeMode;
+  bool get isLoggedIn => _isLoggedIn;
 
   /// Load the user's settings from the SettingsService. It may load from a
   /// local database or the internet. The controller only knows it can load the
   /// settings from the service.
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
-
+    _isLoggedIn = await _settingsService.isLoggedIn();
     // Important! Inform listeners a change has occurred.
     notifyListeners();
   }
