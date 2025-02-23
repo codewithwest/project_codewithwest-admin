@@ -1,5 +1,6 @@
 import 'package:codewithwest_admin/src/auth/login_admin_user.dart';
 import 'package:codewithwest_admin/src/components/auth_text_field.dart';
+import 'package:codewithwest_admin/src/helper/mutations/mutations.dart';
 import 'package:codewithwest_admin/src/helper/screen_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -16,6 +17,7 @@ class RequestAdminUserAccess extends StatefulWidget {
 class _RequestAdminUserAccessState extends State<RequestAdminUserAccess> {
   final _formKey = GlobalKey<FormState>();
   String _email = '';
+  late String errorText = '';
 
   void updateEmail(String newValue) {
     setState(() {
@@ -25,21 +27,6 @@ class _RequestAdminUserAccessState extends State<RequestAdminUserAccess> {
 
   @override
   Widget build(BuildContext context) {
-    const String createUserMutation = r'''
-      mutation RequestAdminUserAccess($input: AdminUserInput!) {
-        RequestAdminUserAccess(input: $input) {
-          created_at
-          email
-          id
-          last_login
-          password
-          role
-          type
-          updated_at
-          username
-      }
-    }
-    ''';
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
@@ -83,97 +70,108 @@ class _RequestAdminUserAccessState extends State<RequestAdminUserAccess> {
                     : 30),
         alignment: Alignment.center,
         // padding: const EdgeInsets.all(16.0),
-        key: _formKey,
-        child: Column(
-          spacing: 20,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            AuthTextField(
-              onTextChanged: updateEmail,
-              hintText: "amdin@mail.com",
-              icon: Icons.email,
-              validationText: "Email cannot be empty",
-            ),
-            Text(
-              "Please be advised! By submitting this form, you are requesting access to the admin panel. \n You will be notified via email once your request has been approved. \n Note! This is a private application and only authorized personnel are allowed to access the admin panel. \n Unauthorized access will be reported to the authorities.",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                textBaseline: TextBaseline.alphabetic,
-                color: Colors.redAccent,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 20,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: screenWidth / 1.3,
+                child: Text(
+                  textAlign: TextAlign.center,
+                  errorText,
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                ),
               ),
-            ),
-            Mutation(
-              options: MutationOptions(
-                // The options are here!
-                document: gql(createUserMutation),
-                onCompleted: (data) {
-                  // ... (handle successful creation)
-                },
-                onError: (error) {
-                  // ... (handle errors)
-                },
+              AuthTextField(
+                onTextChanged: updateEmail,
+                hintText: "amdin@mail.com",
+                icon: Icons.email,
+                validationText: "Email cannot be empty",
               ),
-              builder: (
-                RunMutation runMutation,
-                QueryResult? result,
-              ) {
-                return Column(
-                  spacing: 20,
-
-                  // Wrap in a Column to avoid layout issues
-                  children: [
-                    Container(
-                      width: 200,
-                      height: 75,
-                      decoration: BoxDecoration(
+              Text(
+                "Please be advised! By submitting this form, you are requesting access to the admin panel. \n You will be notified via email once your request has been approved. \n Note! This is a private application and only authorized personnel are allowed to access the admin panel. \n Unauthorized access will be reported to the authorities.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  textBaseline: TextBaseline.alphabetic,
+                  color: Colors.redAccent,
+                ),
+              ),
+              Mutation(
+                options: MutationOptions(
+                  document: gql(Mutations.createAdminUserAccessRequest),
+                  onCompleted: (data) {
+                    Navigator.pushReplacementNamed(
+                        context, LoginAdminUser.routeName);
+                  },
+                  onError: (error) {
+                    setState(() {
+                      errorText = error!.graphqlErrors[0].message;
+                    });
+                  },
+                ),
+                builder: (
+                  RunMutation runMutation,
+                  QueryResult? result,
+                ) {
+                  return Column(
+                    spacing: 20,
+                    children: [
+                      Container(
+                        width: 200,
+                        height: 75,
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          gradient: const LinearGradient(colors: [
-                            Color.fromARGB(255, 0, 178, 209),
-                            Color.fromARGB(255, 125, 10, 255),
-                          ])),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            runMutation({
-                              "input": {
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color.fromARGB(255, 0, 178, 209),
+                              Color.fromARGB(255, 125, 10, 255),
+                            ],
+                          ),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            print(_formKey.currentState);
+                            if (_formKey.currentState!.validate()) {
+                              runMutation({
                                 'email': _email,
-                              }
-                            });
-                          }
-                        },
-                        child: const Text('Request Access'),
+                              });
+                            }
+                          },
+                          child: const Text('Request Access'),
+                        ),
                       ),
-                    ),
-                    Container(
-                      width: 200,
-                      height: 75,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          gradient: const LinearGradient(colors: [
-                            Color.fromARGB(255, 125, 10, 255),
-                            Color.fromARGB(255, 0, 178, 209),
-                          ])),
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pushReplacementNamed(
-                            context, LoginAdminUser.routeName),
-                        child: const Text('Login'),
+                      Container(
+                        width: 200,
+                        height: 75,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            gradient: const LinearGradient(colors: [
+                              Color.fromARGB(255, 125, 10, 255),
+                              Color.fromARGB(255, 0, 178, 209),
+                            ])),
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pushReplacementNamed(
+                              context, LoginAdminUser.routeName),
+                          child: const Text('Login'),
+                        ),
                       ),
-                    ),
-                    if (result != null) // Check if result is not null
-                      if (result.isLoading)
-                        const CircularProgressIndicator()
-                      else if (result.hasException)
-                        Text(result.exception.toString())
-                      else if (result.data != null)
-                        Text('User created: ${result.data}'),
-                  ],
-                );
-              },
-            ),
-          ],
+                      if (result != null) // Check if result is not null
+                        if (result.isLoading) const CircularProgressIndicator()
+                      // else if (result.hasException)
+                      //   Text(result.exception.toString())
+                      // else if (result.data != null)
+                      //   Text('User created: ${result.data}'),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

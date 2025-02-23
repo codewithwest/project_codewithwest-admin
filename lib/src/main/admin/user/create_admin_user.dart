@@ -155,10 +155,9 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
                         ),
                       ),
                       if (result != null) // Check if result is not null
-                        if (result.isLoading)
-                          const CircularProgressIndicator()
-                        else if (result.data != null)
-                          Text('User created Successfully'),
+                        if (result.isLoading) const CircularProgressIndicator()
+                      // else if (result.data != null)
+                      //   Text('User created Successfully'),
                     ],
                   );
                 },

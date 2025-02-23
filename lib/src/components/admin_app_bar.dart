@@ -1,9 +1,12 @@
+import 'package:codewithwest_admin/src/settings/settings_controller.dart';
+
 import '/src/main/admin/user/profile.dart';
 import '/src/settings/settings_view.dart';
 import 'package:flutter/material.dart';
 
 class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const AdminAppBar({super.key});
+  const AdminAppBar({super.key, required this.settingsController});
+  final SettingsController settingsController;
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
@@ -26,6 +29,11 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
                 break;
               case 'profile':
                 Navigator.pushNamed(context, Profile.routeName);
+              case 'logout':
+                settingsController.logoutAdminUser();
+                Navigator.pushReplacementNamed(context, "/");
+                // Add logout logic here
+                break;
               default:
             }
           },
@@ -49,6 +57,18 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   SizedBox(width: 10),
                   Text('Profile'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'logout',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.logout,
+                  ),
+                  SizedBox(width: 10),
+                  Text('Logout'),
                 ],
               ),
             ),

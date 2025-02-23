@@ -8,9 +8,14 @@ Widget checkAuth(BuildContext context, Widget protectedRoute,
     SettingsController settingsController,
     {bool displayUnauthorized = false} // Optional parameter
     ) {
+  settingsController.loadSettings();
   if (settingsController.isLoggedIn) {
     return protectedRoute;
   } else {
-    return displayUnauthorized ? AdminDashboard() : LoginAdminUser();
+    return displayUnauthorized
+        ? AdminDashboard()
+        : LoginAdminUser(
+            controller: settingsController,
+          );
   }
 }

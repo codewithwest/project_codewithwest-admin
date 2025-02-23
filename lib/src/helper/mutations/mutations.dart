@@ -15,31 +15,41 @@ class Mutations {
     }
     ''';
 
-  static const String createProjectCategory = r'''
-      mutation createProjectCategory($name: String!) {
-        createProjectCategory(name: $name) {
-          id
-          name
-          created_at
-          updated_at
-        }
+  static const String createAdminUserAccessRequest = r'''
+    mutation adminUserAccessRequest($email: String!){
+      adminUserAccessRequest(email: $email) {
+        created_at
+        email
+        id
       }
-    ''';
+    }
+''';
+
+  static const String createProjectCategory = r'''
+    mutation createProjectCategory($name: String!) {
+      createProjectCategory(name: $name) {
+        id
+        name
+        created_at
+        updated_at
+      }
+    }
+  ''';
 
   static const String createProject = r'''
-      mutation createProject($input: ProjectInput!) {
-        createProject(input: $input) {
-          id
-          project_category_id
-          name
-          description
-          tech_stacks
-          github_link
-          live_link
-          test_link
-          created_at
-          updated_at
-        }
+    mutation createProject($input: ProjectInput!) {
+      createProject(input: $input) {
+        id
+        project_category_id
+        name
+        description
+        tech_stacks
+        github_link
+        live_link
+        test_link
+        created_at
+        updated_at
       }
+    }
 ''';
 }

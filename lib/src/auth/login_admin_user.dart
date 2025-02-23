@@ -1,25 +1,32 @@
-import 'package:codewithwest_admin/src/auth/request_admin_user_access.dart';
-import 'package:codewithwest_admin/src/components/auth_text_field.dart';
-import 'package:codewithwest_admin/src/helper/queries/queries.dart';
-import 'package:codewithwest_admin/src/helper/screen_breakpoints.dart';
+import 'package:codewithwest_admin/src/settings/settings_service.dart';
+import '/src/auth/request_admin_user_access.dart';
+import '/src/components/auth_text_field.dart';
+import '/src/helper/queries/queries.dart';
+import '/src/helper/screen_breakpoints.dart';
+import '/src/settings/settings_controller.dart';
 import '/src/main/admin/admin_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class LoginAdminUser extends StatefulWidget {
-  const LoginAdminUser({super.key});
+  const LoginAdminUser({
+    super.key,
+    required this.controller,
+  });
   static const routeName = '/auth/admin-user-login';
+  final SettingsController controller;
 
   @override
   State<LoginAdminUser> createState() => _LoginAdminUserState();
 }
 
 class _LoginAdminUserState extends State<LoginAdminUser> {
+  final SettingsController controller = SettingsController(SettingsService());
   final _formKey = GlobalKey<FormState>();
-
   String _userName = '';
   String _email = '';
   String _password = '';
+  late String errorText = '';
 
   void updateUserName(String newValue) {
     setState(() {
@@ -91,6 +98,14 @@ class _LoginAdminUserState extends State<LoginAdminUser> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(
+                width: screenWidth / 1.3,
+                child: Text(
+                  textAlign: TextAlign.center,
+                  errorText,
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              ),
               AuthTextField(
                 onTextChanged: updateUserName,
                 hintText: "tabloitTinker",
@@ -111,16 +126,19 @@ class _LoginAdminUserState extends State<LoginAdminUser> {
               ),
               Mutation(
                 options: MutationOptions(
-                  // The options are here!
                   document: gql(Queries.loginAdminUser),
                   onCompleted: (data) {
-                    if (data != null) {
+                    if (data != null && data["loginAdminUser"] != null) {
+                      controller.updateIsLoggedIn(data["loginAdminUser"]);
                       Navigator.pushReplacementNamed(
                           context, AdminDashboard.routeName);
                     }
                   },
                   onError: (error) {
-                    // ... (handle errors)
+                    setState(() {
+                      var err = error!.graphqlErrors;
+                      errorText = err.isNotEmpty ? err[0].message : "";
+                    });
                   },
                 ),
                 builder: (
@@ -171,10 +189,9 @@ class _LoginAdminUserState extends State<LoginAdminUser> {
                         ),
                       ),
                       if (result != null) // Check if result is not null
-                        if (result.isLoading)
-                          const CircularProgressIndicator()
-                        else if (result.data != null)
-                          Text('Login successful'),
+                        if (result.isLoading) const CircularProgressIndicator()
+                      // else if (result.data != null)
+                      //   Text('Login successful'),
                       // Navigator.restorablePushNamed(context, Profile.routeName),
                     ],
                   );

@@ -10,7 +10,7 @@ class SettingsService {
   /// Loads the User's preferred ThemeMode from local or remote storage.
   Future<ThemeMode> themeMode() async => ThemeMode.system;
 
-  Future<bool> isLoggedIn() async => true;
+  Future<bool> isLoggedIn() async => adminUserIsLoggedIn();
 
   /// Persists the user's preferred ThemeMode to local or remote storage.
   Future<void> updateThemeMode(ThemeMode theme) async {
@@ -27,5 +27,28 @@ class SettingsService {
   Future<String?> loadData(String key) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
+  }
+
+  Future<void> logoutAdminUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+  }
+
+  Future<void> updateLoggedInData(loginData) async {
+    if (loginData["email"] != null && loginData["id"] != null) {
+      saveData("email", loginData["email"] ?? "");
+      saveData("id", loginData["id"] ?? "");
+      saveData("token", "loginDatatoken");
+    }
+  }
+
+  Future<bool> adminUserIsLoggedIn() async {
+    String? email = await loadData("email");
+    String? id = await loadData("id");
+    String? token = await loadData("token");
+
+    print(email.toString() + " " + id.toString() + " " + token.toString());
+    if (token != null && id != null && email != null) return true;
+    return false;
   }
 }
