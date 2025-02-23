@@ -21,7 +21,7 @@ pipeline {
         stage('Create Packaging Directory') {
             steps {
                 sh '''
-                    mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/<your_app_name> packaging/usr/share/applications packaging/usr/share/icons/hicolor/scalable/apps
+                    mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/codewithwest_admin packaging/usr/share/applications packaging/usr/share/icons/hicolor/scalable/apps
                 '''
             }
         }
@@ -30,13 +30,12 @@ pipeline {
             steps {
                 sh '''
                     ARCH=$(uname -m) # Detect architecture (amd64, arm64, etc.)
-
                     # Copy the application (adjust paths as needed)
-                    cp -r build/linux/$ARCH/<your_app_name> packaging/usr/lib/<your_app_name>
-                    cp build/linux/$ARCH/<your_app_name>/<your_app_name> packaging/usr/bin
+                    cp -r build/linux/$ARCH/codewithwest_admin packaging/usr/lib/codewithwest_admin
+                    cp build/linux/$ARCH/codewithwest_admin/codewithwest_admin packaging/usr/bin
 
                     # Create symbolic link if needed:  Example
-                    # ln -s /usr/lib/<your_app_name>/<your_app_name> packaging/usr/bin/<your_app_name>
+                    # ln -s /usr/lib/codewithwest_admin/codewithwest_admin packaging/usr/bin/codewithwest_admin
                 '''
             }
         }
@@ -61,11 +60,11 @@ pipeline {
         stage('Create Desktop Entry (Optional)') {
             steps {
                 sh '''
-                    cat << EOF > packaging/usr/share/applications/<your_app_name>.desktop
+                    cat << EOF > packaging/usr/share/applications/codewithwest_admin.desktop
                     [Desktop Entry]
                     Name=<Your Application Name>
                     Comment=<A longer description>
-                    Exec=/usr/bin/<your_app_name>
+                    Exec=/usr/bin/codewithwest_admin
                     Icon=/<path/to/your/icon> # Add icon path
                     Terminal=false
                     Type=Application
