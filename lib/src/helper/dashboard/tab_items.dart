@@ -1,3 +1,4 @@
+import 'package:codewithwest_admin/src/main/admin/projects/create_project.dart';
 import 'package:codewithwest_admin/src/main/admin/projects/create_project_category.dart';
 
 import '/src/main/admin/projects/project_categories.dart';
@@ -31,7 +32,7 @@ final List<TabItem> tabs = [
   ),
   TabItem(
     title: 'Create Project',
-    routeName: '/create-project',
+    routeName: CreateProject.routeName,
   ),
   TabItem(
     title: "Project Categories",

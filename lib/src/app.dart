@@ -1,3 +1,4 @@
+import 'package:codewithwest_admin/src/main/admin/projects/create_project.dart';
 import 'package:codewithwest_admin/src/main/admin/projects/create_project_category.dart';
 import 'package:codewithwest_admin/src/main/admin/user/admin_user_access_requests.dart';
 
@@ -140,6 +141,9 @@ class MyApp extends StatelessWidget {
                     case CreateProjectCategory.routeName:
                       return checkAuth(
                           context, CreateProjectCategory(), settingsController);
+                    case CreateProject.routeName:
+                      return checkAuth(
+                          context, CreateProject(), settingsController);
                     default:
                       return const InvalidRoute();
                   }

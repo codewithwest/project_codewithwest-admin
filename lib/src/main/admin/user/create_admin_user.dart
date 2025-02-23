@@ -108,7 +108,7 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
               Mutation(
                 options: MutationOptions(
                   // The options are here!
-                  document: gql(Mutations.createAdminUserMutation),
+                  document: gql(Mutations.createAdminUser),
                   onCompleted: (data) {
                     if (data != null) {
                       Navigator.pushReplacementNamed(

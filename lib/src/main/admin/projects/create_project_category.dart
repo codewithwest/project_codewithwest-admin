@@ -1,8 +1,6 @@
-import 'package:codewithwest_admin/src/helper/mutations/mutations.dart';
+import '/src/helper/mutations/mutations.dart';
 
-import '/src/auth/request_admin_user_access.dart';
 import '/src/components/auth_text_field.dart';
-import '/src/helper/queries/queries.dart';
 import '/src/helper/screen_breakpoints.dart';
 import '/src/main/admin/projects/project_categories.dart';
 import 'package:flutter/material.dart';
@@ -141,7 +139,7 @@ class _CreateProjectCategoryState extends State<CreateProjectCategory> {
                         if (result.isLoading)
                           const CircularProgressIndicator()
                         else if (result.data != null)
-                          Text('Login successful'),
+                          Text('Project Creation successful'),
                       // Navigator.restorablePushNamed(context, Profile.routeName),
                     ],
                   );

@@ -91,13 +91,13 @@ class _ProjectsState extends State<Projects> {
                           leading: Container(
                             padding: const EdgeInsets.all(10),
                             child: Text(
-                              project['id'] as String,
+                              "${project?['id']}",
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          title: Text(project['email'] as String),
-                          subtitle: Text(project['username']),
+                          title: Text(project['name']),
+                          subtitle: Text(project['description']),
                           trailing: IconButton(
                             onPressed: () =>
                                 Navigator.popAndPushNamed(context, "/"),
