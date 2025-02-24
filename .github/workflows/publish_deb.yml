@@ -54,12 +54,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: codewithwest-admin
-          path: ./
+          path: dist/
 
       - name: Get package name
         id: get_package_name
         run: |
-          PACKAGE_NAME=$(ls ./*.deb)
+          PACKAGE_NAME=$(ls .dist/.deb)
           echo "PACKAGE_NAME=$(basename $PACKAGE_NAME)" >> $GITHUB_OUTPUT
 
       - name: Attach to Release
