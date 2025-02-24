@@ -31,7 +31,7 @@ jobs:
 
       - name: Build debian package
         run: |
-          dart run flutter_distributor:release --name=prod --jobs=release-prod-linux-deb
+          flutter_distributor release --name=prod --jobs=release-prod-linux-deb
           ls -la dist/ # Check the dist directory
 
       - name: Upload Debian package
