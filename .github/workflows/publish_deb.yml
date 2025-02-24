@@ -59,9 +59,16 @@ jobs:
       - name: Get package name
         id: get_package_name
         run: |
-          PACKAGE_NAME_LOCATION=$(find . -type f | grep "codewithwest-admin")
-          PACKAGE_NAME=$(ls $PACKAGE_NAME_LOCATION)
-          echo "PACKAGE_NAME=$(basename $PACKAGE_NAME)" >> $GITHUB_OUTPUT
+
+          run: |
+            PACKAGE_NAME_LOCATION=$(find . -name "*codewithwest-admin*.deb" -print -quit)
+            if [[ -n "$PACKAGE_NAME_LOCATION" ]]; then
+              PACKAGE_NAME=$(basename "$PACKAGE_NAME_LOCATION")
+              echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+            else
+              echo "No matching package found."
+              exit 1 # Exit with an error code if no package is found.
+            fi
 
       - name: Attach to Release
         uses: actions/github-script@v6
