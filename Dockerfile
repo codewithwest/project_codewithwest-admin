@@ -3,7 +3,7 @@ FROM ubuntu:latest
 RUN apt-get update && \
     apt-get install clang cmake git \
     ninja-build pkg-config libgtk-3-dev \
-    liblzma-dev libstdc++-12-dev curl unzip zip -y
+    liblzma-dev libstdc++-12-dev curl unzip zip xz-utils  -y
 
 RUN curl -fsSL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.29.0-stable.tar.xz -o flutter.tar.xz && \
     mkdir /opt/flutter && \
