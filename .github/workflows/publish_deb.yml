@@ -20,6 +20,11 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.29.x"
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
 
       - name: Install dependencies
         run: |
@@ -37,7 +42,7 @@ jobs:
       - name: Upload Debian package
         uses: actions/upload-artifact@v4
         with:
-          name: debian-package
+          name: codewithwest-admin
           path: dist/*/*.deb
 
   release:
@@ -48,13 +53,13 @@ jobs:
       - name: Download Debian package
         uses: actions/download-artifact@v4
         with:
-          name: debian-package
+          name: codewithwest-admin
           path: ./
 
       - name: Get package name
         id: get_package_name
         run: |
-          PACKAGE_NAME=$(ls ./*.deb)
+          PACKAGE_NAME=$(ls dist/*/*.deb)
           echo "PACKAGE_NAME=$(basename $PACKAGE_NAME)" >> $GITHUB_OUTPUT
 
       - name: Attach to Release
