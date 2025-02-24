@@ -31,12 +31,15 @@ jobs:
 
       - name: Build debian package
         run: |
-          flutter_distributor release --name=prod --jobs=release-prod-linux-deb
+          dart run flutter_distributor:release --name=prod --jobs=release-prod-linux-deb
+          ls -la dist/ # Check the dist directory
+
       - name: Upload Debian package
         uses: actions/upload-artifact@v4
         with:
           name: debian-package
-          path: ./*.deb
+          path: dist/*/*.deb
+
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -59,13 +62,13 @@ jobs:
         with:
           script: |
             const fs = require('fs').promises;
-            const artifactPath = `build/${{ steps.get_package_name.outputs.PACKAGE_NAME }}`;
+            const artifactPath = `./${{ steps.get_package_name.outputs.PACKAGE_NAME }}`;
             const artifactContent = await fs.readFile(artifactPath);
 
             await github.rest.repos.uploadReleaseAsset({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            release_id: context.payload.release.id,
-            name: '${{ steps.get_package_name.outputs.PACKAGE_NAME }}',
-            data: artifactContent,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              name: '${{ steps.get_package_name.outputs.PACKAGE_NAME }}',
+              data: artifactContent,
             });
