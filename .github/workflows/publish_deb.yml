@@ -29,14 +29,6 @@ jobs:
           flutter pub get
           dart pub global activate flutter_distributor
 
-      - name: install dependencies
-        run: |
-          apt-get update
-          apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev -y
-
-          flutter pub get
-          dart pub global activate flutter_distributor
-
       - name: Build debian package
         run: |
           flutter_distributor release --name=prod --jobs=release-prod-linux-deb
