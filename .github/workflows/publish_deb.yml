@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debian-package
-          path: build/distribute/debian/*.deb
+          path: ./*.deb
   release:
     needs: build
     runs-on: ubuntu-latest
