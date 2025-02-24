@@ -1,0 +1,68 @@
+name: Codewithwest admin deb package
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.x"
+
+      - name: install dependencies
+        run: |
+          flutter pub get
+          dart pub global activate flutter_distributor
+
+      - name: Build debian package
+        run: |
+          flutter_distributor release --name=prod --jobs=release-prod-linux-deb
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package
+          path: build/distribute/debian/*.deb
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Debian package
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-package
+          path: build/
+
+      - name: Get package name
+        id: get_package_name
+        run: |
+          PACKAGE_NAME=$(ls build/*.deb)
+          echo "PACKAGE_NAME=$(basename $PACKAGE_NAME)" >> $GITHUB_OUTPUT
+
+      - name: Attach to Release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs').promises;
+            const artifactPath = `build/${{ steps.get_package_name.outputs.PACKAGE_NAME }}`;
+            const artifactContent = await fs.readFile(artifactPath);
+
+            await github.rest.repos.uploadReleaseAsset({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: context.payload.release.id,
+            name: '${{ steps.get_package_name.outputs.PACKAGE_NAME }}',
+            data: artifactContent,
+            });
