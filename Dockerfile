@@ -1,4 +1,4 @@
-FROM ububtu-latest
+FROM ubuntu:latest
 
 RUN apt-get update && \
     apt-get install clang cmake git \
