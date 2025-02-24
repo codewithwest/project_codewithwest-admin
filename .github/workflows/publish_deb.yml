@@ -59,7 +59,8 @@ jobs:
       - name: Get package name
         id: get_package_name
         run: |
-          PACKAGE_NAME=$(ls dist/*.deb)
+          PACKAGE_NAME_LOCATION=$(find . -type f | grep "codewithwest-admin")
+          PACKAGE_NAME=$(ls $PACKAGE_NAME_LOCATION)
           echo "PACKAGE_NAME=$(basename $PACKAGE_NAME)" >> $GITHUB_OUTPUT
 
       - name: Attach to Release
