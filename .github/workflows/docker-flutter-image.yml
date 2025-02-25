@@ -16,7 +16,7 @@ jobs:
         run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
       - name: Build and tag the Docker image
         run: |
-          IMAGE_TAG=$(date +%s)
+          IMAGE_TAG=3.29.0
           docker build . --file Dockerfile --tag codewithwest-flutter:$IMAGE_TAG
           docker tag codewithwest-flutter:$IMAGE_TAG ghcr.io/${{ github.repository }}/codewithwest-flutter:$IMAGE_TAG
           docker push ghcr.io/${{ github.repository }}/codewithwest-flutter:$IMAGE_TAG
