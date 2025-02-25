@@ -12,5 +12,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag codewithwest-flutter:$(date +%s)
+      - name: Log in to GHCR
+        run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and tag the Docker image
+        run: |
+          IMAGE_TAG=$(date +%s)
+          docker build . --file Dockerfile --tag codewithwest-flutter:$IMAGE_TAG
+          docker tag codewithwest-flutter:$IMAGE_TAG ghcr.io/${{ github.repository }}/codewithwest-flutter:$IMAGE_TAG
+      - name: Push the Docker image
+        run: |
+          IMAGE_TAG=$(date +%s)
+          docker push ghcr.io/${{ github.repository }}/codewithwest-flutter:$IMAGE_TAG
