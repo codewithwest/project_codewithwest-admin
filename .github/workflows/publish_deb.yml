@@ -49,7 +49,7 @@ jobs:
       - name: Get package name
         id: get_package_name
         run: |
-          PACKAGE_NAME_LOCATION=$(find . -name "*codewithwest_admin*.deb" -print -quit)
+          PACKAGE_NAME_LOCATION=$(find . -type f | grep "codewithwest_admin" | grep "deb")
           if [[ -n "$PACKAGE_NAME_LOCATION" ]]; then
             PACKAGE_NAME=$(basename "$PACKAGE_NAME_LOCATION")
             echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
