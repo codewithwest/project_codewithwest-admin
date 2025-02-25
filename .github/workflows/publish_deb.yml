@@ -51,7 +51,6 @@ jobs:
         run: |
           PACKAGE_NAME_LOCATION=$(find . | grep "codewithwest_admin" | grep "deb")
           if [[ -n "$PACKAGE_NAME_LOCATION" ]]; then
-            PACKAGE_NAME=$(basename "$PACKAGE_NAME_LOCATION")
             echo "$PACKAGE_NAME";
             echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
           else
