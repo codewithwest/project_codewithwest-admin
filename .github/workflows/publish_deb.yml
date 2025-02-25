@@ -26,6 +26,7 @@ jobs:
             /bin/bash -c "cd /app 
             flutter pub get 
             dart pub global activate flutter_distributor
+            export PATH="$PATH":"$HOME/.pub-cache/bin"
             flutter_distributor release --name=prod --jobs=release-prod-linux-deb"
 
       - name: Upload Debian package
