@@ -31,17 +31,21 @@ jobs:
           name: codewithwest-admin
           path: dist/*/*.deb
 
+
   release:
     needs: build
     runs-on: ubuntu-latest
-
+  
     steps:
       - name: Download Debian package
         uses: actions/download-artifact@v4
         with:
           name: codewithwest-admin
           path: dist/
-
+  
+      - name: List downloaded files
+        run: ls -la dist/
+  
       - name: Get package name
         id: get_package_name
         run: |
@@ -53,7 +57,7 @@ jobs:
             echo "No matching package found."
             exit 1 # Exit with an error code if no package is found.
           fi
-
+  
       - name: Attach to Release
         uses: actions/github-script@v6
         with:
@@ -61,7 +65,7 @@ jobs:
             const fs = require('fs').promises;
             const artifactPath = `./${{ steps.get_package_name.outputs.PACKAGE_NAME }}`;
             const artifactContent = await fs.readFile(artifactPath);
-
+  
             await github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
