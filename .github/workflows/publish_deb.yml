@@ -49,7 +49,7 @@ jobs:
       - name: Get package name
         id: get_package_name
         run: |
-          PACKAGE_NAME_LOCATION=$(find . | grep "codewithwest_admin" | grep "deb")
+          PACKAGE_NAME_LOCATION=$(find dist/ | grep "codewithwest_admin" | grep "deb")
           if [[ -n "$PACKAGE_NAME_LOCATION" ]]; then
             echo "$PACKAGE_NAME";
             echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
@@ -63,7 +63,7 @@ jobs:
         with:
           script: |
             const fs = require('fs').promises;
-            const artifactPath = `${{ steps.get_package_name.outputs.PACKAGE_NAME }}`;
+            const artifactPath = `dist/${{ steps.get_package_name.outputs.PACKAGE_NAME }}`;
             const artifactContent = await fs.readFile(artifactPath);
   
             await github.rest.repos.uploadReleaseAsset({
