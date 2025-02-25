@@ -3,7 +3,7 @@ name: Codewithwest admin deb package
 on:
   push:
     branches:
-      - dev
+      - main
   release:
     types: [published]
 
