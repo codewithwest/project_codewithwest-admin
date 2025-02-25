@@ -19,7 +19,4 @@ jobs:
           IMAGE_TAG=$(date +%s)
           docker build . --file Dockerfile --tag codewithwest-flutter:$IMAGE_TAG
           docker tag codewithwest-flutter:$IMAGE_TAG ghcr.io/${{ github.repository }}/codewithwest-flutter:$IMAGE_TAG
-      - name: Push the Docker image
-        run: |
-          IMAGE_TAG=$IMAGE_TAG
           docker push ghcr.io/${{ github.repository }}/codewithwest-flutter:$IMAGE_TAG
