@@ -21,14 +21,14 @@ jobs:
       - name: Run build in Docker container
         run: |
           docker run --rm \
-            -v "$(pwd):/app" \
+            -v "$(pwd):/" \
             ghcr.io/codewithwest/project_codewithwest-admin/codewithwest-flutter:3.29.0 \
-            /bin/bash -c "cd /app && flutter pub get && dart pub global activate flutter_distributor && flutter_distributor release --name=prod --jobs=release-prod-linux-deb"
+            /bin/bash -c "flutter pub get && dart pub global activate flutter_distributor && flutter_distributor release --name=prod --jobs=release-prod-linux-deb"
 
       - name: Copy Debian package out of container (if needed)
         run: |
           mkdir -p dist/prod/release-prod-linux-deb/
-          docker run --rm -v "$(pwd):/app" ghcr.io/codewithwest/project_codewithwest-admin/codewithwest-flutter:3.29.0 /bin/bash -c "cp /app/dist/prod/release-prod-linux-deb/*.deb /app/dist/prod/release-prod-linux-deb/"
+          docker run --rm -v "$(pwd):/app" ghcr.io/codewithwest/project_codewithwest-admin/codewithwest-flutter:3.29.0 /bin/bash -c "cp /dist/prod/release-prod-linux-deb/*.deb /dist/prod/release-prod-linux-deb/"
 
       - name: Upload Debian package
         uses: actions/upload-artifact@v4
