@@ -44,7 +44,7 @@ jobs:
           path: dist/
   
       - name: List downloaded files
-        run: ls -la dist/
+        run: ls -la dist/*/
   
       - name: Get package name
         id: get_package_name
