@@ -51,8 +51,12 @@ jobs:
         run: |
           PACKAGE_NAME_LOCATION=$(find dist/ | grep "codewithwest_admin" | grep "deb")
           if [[ -n "$PACKAGE_NAME_LOCATION" ]]; then
-            echo "$PACKAGE_NAME";
+            cp $PACKAGE_NAME_LOCATION dist/
+            ls -la dist/
+            PACKAGE_NAME=$(basename "$PACKAGE_NAME_LOCATION")
+            echo "$PACKAGE_NAME"
             echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+            echo "Package name found: $PACKAGE_NAME"
           else
             echo "No matching package found."
             exit 1 # Exit with an error code if no package is found.
