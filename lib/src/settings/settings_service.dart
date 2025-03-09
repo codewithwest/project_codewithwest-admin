@@ -35,10 +35,12 @@ class SettingsService {
   }
 
   Future<void> updateLoggedInData(loginData) async {
-    if (loginData["email"] != null && loginData["id"] != null) {
-      saveData("email", loginData["email"] ?? "");
-      saveData("id", loginData["id"] ?? "");
-      saveData("token", "loginDatatoken");
+    if (loginData["email"] != null &&
+        loginData["id"] != null &&
+        loginData["token"] != null) {
+      saveData("email", loginData["email"]);
+      saveData("id", "${loginData["id"]}");
+      saveData("token", loginData["token"]);
     }
   }
 
@@ -47,7 +49,6 @@ class SettingsService {
     String? id = await loadData("id");
     String? token = await loadData("token");
 
-    print(email.toString() + " " + id.toString() + " " + token.toString());
     if (token != null && id != null && email != null) return true;
     return false;
   }

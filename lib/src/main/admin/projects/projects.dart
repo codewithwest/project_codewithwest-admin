@@ -91,7 +91,7 @@ class _ProjectsState extends State<Projects> {
                           leading: Container(
                             padding: const EdgeInsets.all(10),
                             child: Text(
-                              "${project?['id']}",
+                              "${project['id']}",
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),

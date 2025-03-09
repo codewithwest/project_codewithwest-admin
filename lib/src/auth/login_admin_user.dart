@@ -114,7 +114,7 @@ class _LoginAdminUserState extends State<LoginAdminUser> {
               ),
               AuthTextField(
                 onTextChanged: updateEmail,
-                hintText: "amdin@mail.com",
+                hintText: "admin@gmail.com",
                 icon: Icons.email,
                 validationText: "Email cannot be empty",
               ),
@@ -203,6 +203,4 @@ class _LoginAdminUserState extends State<LoginAdminUser> {
       ),
     );
   }
-
-  // ... (dispose method)
 }

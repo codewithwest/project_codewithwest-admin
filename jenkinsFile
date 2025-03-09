@@ -1,122 +1,211 @@
-pipeline {
-    agent any
+// pipeline {
+//     agent any
 
+//     stages {
+//         stage('Checkout') {
+//             steps {
+//                 checkout scm // Assuming you've configured your SCM in Jenkins
+//             }
+//         }
+
+//         stage('Flutter Build Linux') {
+//             steps {
+//                 sh '''
+//                     flutter clean
+//                     flutter pub get
+//                     flutter build linux
+//                 '''
+//             }
+//         }
+
+//         stage('Create Packaging Directory') {
+//             steps {
+//                 sh '''
+//                     mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/codewithwest_admin packaging/usr/share/applications packaging/usr/share/icons/hicolor/scalable/apps
+//                 '''
+//             }
+//         }
+
+//         stage('Copy Application Files') {
+//             steps {
+//                 sh '''
+//                     ARCH=$(uname -m) # Detect architecture (amd64, arm64, etc.)
+//                     # Copy the application (adjust paths as needed)
+//                     cp -r build/linux/$ARCH/codewithwest_admin packaging/usr/lib/codewithwest_admin
+//                     cp build/linux/$ARCH/codewithwest_admin/codewithwest_admin packaging/usr/bin
+
+//                     # Create symbolic link if needed:  Example
+//                     # ln -s /usr/lib/codewithwest_admin/codewithwest_admin packaging/usr/bin/codewithwest_admin
+//                 '''
+//             }
+//         }
+
+//         stage('Create Control File') {
+//             steps {
+//                 sh '''
+//                     cat << EOF > packaging/DEBIAN/control
+//                     Package: <your_package_name>
+//                     Version: 1.0.0+${BUILD_NUMBER} # Use Jenkins build number for versioning
+//                     Architecture: $(uname -m) # Dynamically set architecture
+//                     Maintainer: Your Name <your.email@example.com>
+//                     Description: A brief description of your application.
+//                     Depends: libgtk-3-0, libstdc++6 # Add your dependencies! Use ldd
+//                     Section: games # Or appropriate section
+//                     Priority: optional
+//                     EOF
+//                 '''
+//             }
+//         }
+
+//         stage('Create Desktop Entry (Optional)') {
+//             steps {
+//                 sh '''
+//                     cat << EOF > packaging/usr/share/applications/codewithwest_admin.desktop
+//                     [Desktop Entry]
+//                     Name=<Your Application Name>
+//                     Comment=<A longer description>
+//                     Exec=/usr/bin/codewithwest_admin
+//                     Icon=/<path/to/your/icon> # Add icon path
+//                     Terminal=false
+//                     Type=Application
+//                     Categories=Application;Utility; # Or other categories
+//                     EOF
+//                 '''
+//                 // Copy your icon file if you have one.
+//                 // sh 'cp your_icon.png packaging/usr/share/icons/hicolor/scalable/apps/'
+//             }
+//         }
+
+//         stage('Build .deb Package') {
+//             steps {
+//                 sh '''
+//                     dpkg-deb --build packaging <your_package_name>.deb
+//                 '''
+//             }
+//             post {
+//                 always {
+//                   archiveArtifacts artifacts: '<your_package_name>.deb', allowEmptyArchive: false
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+// /////
+// pipeline {
+//     agent {
+//         docker {
+//             image 'your-docker-registry/your-flutter-build-image:latest' // Your Docker image
+//             label 'docker-agent'  // Label for Docker agent (optional)
+//             // volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]  If you need docker in docker
+//             volumes: [ 'deb_output:/output' ] // Mount a volume for the .deb file
+//         }
+//     }
+//     stages {
+//         stage('Build in Docker') {
+//             steps {
+//                 // No need for explicit 'flutter build' or packaging commands here,
+//                 // as they are now in the Dockerfile.
+
+//                 // If you are pushing your docker image, uncomment below
+//                 // sh 'docker push your-docker-registry/your-flutter-build-image:latest'
+
+//             }
+//         }
+//         stage('Archive .deb Package') {
+//             steps{
+//                 archiveArtifacts artifacts: '**/<your_package_name>.deb', allowEmptyArchive: false
+//             }
+//         }
+//     }
+// }
+
+
+pipeline {
+    agent {
+        docker {
+            image 'ghcr.io/codewithwest/project_codewithwest-admin/codewithwest-flutter:3.29.0'
+        }
+    }
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'develop', description: 'Branch to checkout')
+    }
     stages {
-        stage('Checkout') {
+        stage('Pull Image (Cache)') {
             steps {
-                checkout scm // Assuming you've configured your SCM in Jenkins
+                sh 'docker pull ghcr.io/codewithwest/project_codewithwest-admin/codewithwest-flutter:3.29.0'
             }
         }
-
-        stage('Flutter Build Linux') {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'jenkins-github-auth', url: 'https://github.com/codewithwest/project_codewithwest-admin', branch: "${BRANCH}"
+                sh '''
+                    echo "Lets start this"
+                '''
+            }
+        }
+        stage('Prepare Application') {
             steps {
                 sh '''
                     flutter clean
                     flutter pub get
-                    flutter build linux
+                    // ... your build steps ...
                 '''
             }
         }
-
-        stage('Create Packaging Directory') {
-            steps {
-                sh '''
-                    mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/codewithwest_admin packaging/usr/share/applications packaging/usr/share/icons/hicolor/scalable/apps
-                '''
-            }
-        }
-
-        stage('Copy Application Files') {
-            steps {
-                sh '''
-                    ARCH=$(uname -m) # Detect architecture (amd64, arm64, etc.)
-                    # Copy the application (adjust paths as needed)
-                    cp -r build/linux/$ARCH/codewithwest_admin packaging/usr/lib/codewithwest_admin
-                    cp build/linux/$ARCH/codewithwest_admin/codewithwest_admin packaging/usr/bin
-
-                    # Create symbolic link if needed:  Example
-                    # ln -s /usr/lib/codewithwest_admin/codewithwest_admin packaging/usr/bin/codewithwest_admin
-                '''
-            }
-        }
-
-        stage('Create Control File') {
-            steps {
-                sh '''
-                    cat << EOF > packaging/DEBIAN/control
-                    Package: <your_package_name>
-                    Version: 1.0.0+${BUILD_NUMBER} # Use Jenkins build number for versioning
-                    Architecture: $(uname -m) # Dynamically set architecture
-                    Maintainer: Your Name <your.email@example.com>
-                    Description: A brief description of your application.
-                    Depends: libgtk-3-0, libstdc++6 # Add your dependencies! Use ldd
-                    Section: games # Or appropriate section
-                    Priority: optional
-                    EOF
-                '''
-            }
-        }
-
-        stage('Create Desktop Entry (Optional)') {
-            steps {
-                sh '''
-                    cat << EOF > packaging/usr/share/applications/codewithwest_admin.desktop
-                    [Desktop Entry]
-                    Name=<Your Application Name>
-                    Comment=<A longer description>
-                    Exec=/usr/bin/codewithwest_admin
-                    Icon=/<path/to/your/icon> # Add icon path
-                    Terminal=false
-                    Type=Application
-                    Categories=Application;Utility; # Or other categories
-                    EOF
-                '''
-                // Copy your icon file if you have one.
-                // sh 'cp your_icon.png packaging/usr/share/icons/hicolor/scalable/apps/'
-            }
-        }
-
-        stage('Build .deb Package') {
-            steps {
-                sh '''
-                    dpkg-deb --build packaging <your_package_name>.deb
-                '''
-            }
-            post {
-                always {
-                  archiveArtifacts artifacts: '<your_package_name>.deb', allowEmptyArchive: false
-                }
-            }
+    }
+    post {
+        always {
+            cleanWs()
         }
     }
 }
 
 
-/////
+
 pipeline {
     agent {
         docker {
-            image 'your-docker-registry/your-flutter-build-image:latest' // Your Docker image
-            label 'docker-agent'  // Label for Docker agent (optional)
-            // volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]  If you need docker in docker
-            volumes: [ 'deb_output:/output' ] // Mount a volume for the .deb file
+            image: 'ubuntu:latest'
+            // No image specified here. We'll build it from the Dockerfile.
         }
     }
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to checkout')
+    }
     stages {
-        stage('Build in Docker') {
+        stage('Checkout') {
             steps {
-                // No need for explicit 'flutter build' or packaging commands here,
-                // as they are now in the Dockerfile.
-
-                // If you are pushing your docker image, uncomment below
-                // sh 'docker push your-docker-registry/your-flutter-build-image:latest'
-
+                git credentialsId: 'jenkins-github-auth', url: 'https://github.com/codewithwest/your-repository-name', branch: "${BRANCH}"
             }
         }
-        stage('Archive .deb Package') {
-            steps{
-                archiveArtifacts artifacts: '**/<your_package_name>.deb', allowEmptyArchive: false
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def imageName = "flutter:3.29.0:${env.BUILD_NUMBER}" // Tag with build number
+                    docker.build(imageName, '.') // Build from Dockerfile in repo root
+                    env.IMAGE_NAME = imageName // Store for later stages
+                }
             }
+        }
+        stage('Run Commands in Container') {
+            steps {
+                script {
+                    docker.image(env.IMAGE_NAME).inside { // Run commands inside the built image
+                        sh '''
+                            flutter clean
+                            flutter pub get
+                            // ... your build/test commands ...
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
         }
     }
 }

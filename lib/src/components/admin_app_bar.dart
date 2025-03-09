@@ -17,7 +17,7 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: Icon(Icons.emoji_nature_outlined),
       elevation: 10,
       bottomOpacity: .7,
-      title: Text('My App'),
+      title: Text('Codewithwest Admin'),
       actions: <Widget>[
         PopupMenuButton<String>(
           position: PopupMenuPosition.under,

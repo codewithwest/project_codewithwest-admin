@@ -24,7 +24,7 @@ class _CreateProjectState extends State<CreateProject> {
   int? _projectCategoryId;
   String _description = '';
   String _techStacksTextField = '';
-  List<String> _techStacks = [];
+  final List<String> _techStacks = [];
   String _githubLink = '';
   String _testLink = '';
   String _liveLink = '';

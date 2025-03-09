@@ -40,7 +40,9 @@ class SettingsController with ChangeNotifier {
   Future<void> updateIsLoggedIn(loginData) async {
     if (loginData == null) _isLoggedIn = false;
 
-    if (loginData["email"] != null && loginData["id"] != null) {
+    if (loginData["token"] != null &&
+        loginData["id"] != null &&
+        loginData["email"] != null) {
       _isLoggedIn = true;
     }
     notifyListeners();
