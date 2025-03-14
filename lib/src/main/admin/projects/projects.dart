@@ -1,10 +1,15 @@
+import '/src/helper/colors.dart';
+
 import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class Projects extends StatefulWidget {
   const Projects({super.key});
+
+  static const title = 'Projects';
   static const routeName = '/admin/projects/projects';
+  static const icon = Icons.cases_outlined;
 
   @override
   State<Projects> createState() => _ProjectsState();
@@ -21,7 +26,15 @@ class _ProjectsState extends State<Projects> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Projects')),
+      appBar: AppBar(
+        title: const Text(
+          'Projects',
+          style: TextStyle(
+            color: AppColors.primaryBackgroundColor,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           Padding(
@@ -79,13 +92,12 @@ class _ProjectsState extends State<Projects> {
                           onTap: () => Navigator.pushNamed(
                               context, '/admin/projects/projects',
                               arguments: project),
-                          textColor: Colors.lightBlue,
-                          iconColor: Colors.lightBlue,
+                          textColor: Colors.grey,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                           visualDensity: VisualDensity.comfortable,
-                          tileColor: const Color.fromARGB(255, 32, 32, 32),
+                          tileColor: const Color.fromARGB(90, 32, 32, 32),
                           contentPadding: const EdgeInsets.all(2),
                           enabled: true,
                           leading: Container(

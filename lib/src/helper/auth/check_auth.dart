@@ -1,4 +1,4 @@
-import 'package:codewithwest_admin/src/auth/login_admin_user.dart';
+import '/src/auth/login_admin_user.dart';
 
 import '/src/main/admin/admin_dashboard.dart';
 import '/src/settings/settings_controller.dart' show SettingsController;

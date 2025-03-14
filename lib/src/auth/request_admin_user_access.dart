@@ -1,7 +1,7 @@
-import 'package:codewithwest_admin/src/auth/login_admin_user.dart';
-import 'package:codewithwest_admin/src/components/auth_text_field.dart';
-import 'package:codewithwest_admin/src/helper/mutations/mutations.dart';
-import 'package:codewithwest_admin/src/helper/screen_breakpoints.dart';
+import '/src/auth/login_admin_user.dart';
+import '/src/components/auth_text_field.dart';
+import '/src/helper/mutations/mutations.dart';
+import '/src/helper/screen_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 

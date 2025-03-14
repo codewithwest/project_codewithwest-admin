@@ -1,4 +1,4 @@
-import 'package:codewithwest_admin/src/helper/queries/queries.dart';
+import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 

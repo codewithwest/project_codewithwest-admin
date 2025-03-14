@@ -1,6 +1,6 @@
-import 'package:codewithwest_admin/src/helper/colors.dart';
-import 'package:codewithwest_admin/src/helper/dashboard/tab_items.dart';
-import 'package:codewithwest_admin/src/helper/screen_breakpoints.dart';
+import '/src/helper/colors.dart';
+import '/src/helper/dashboard/tab_items.dart';
+import '/src/helper/screen_breakpoints.dart';
 import 'package:flutter/material.dart';
 
 class GridTabs extends StatefulWidget {
@@ -34,14 +34,14 @@ class GridTabsState extends State<GridTabs>
         mainAxisSpacing: 5,
         crossAxisSpacing: 8,
         crossAxisCount: screenWidth > ScreenBreakpoints.large
-            ? 4
+            ? 6
             : screenWidth > ScreenBreakpoints.medium
-                ? 3
+                ? 4
                 : 2,
         children: tabs // List of TabItem
             .map((tab) {
           return SizedBox(
-            height: 260,
+            height: 120,
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(

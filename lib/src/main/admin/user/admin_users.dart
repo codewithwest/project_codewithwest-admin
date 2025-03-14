@@ -1,10 +1,14 @@
-import 'package:codewithwest_admin/src/helper/queries/queries.dart';
+import '/src/helper/colors.dart';
+import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AdminUsers extends StatefulWidget {
   const AdminUsers({super.key});
+
+  static const title = 'Admin Users';
   static const routeName = '/admin/user/admin-users';
+  static const icon = Icons.person_add;
 
   @override
   State<AdminUsers> createState() => _AdminUsersState();
@@ -21,7 +25,15 @@ class _AdminUsersState extends State<AdminUsers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Users')),
+      appBar: AppBar(
+        title: const Text(
+          'Admin Users',
+          style: TextStyle(
+            color: AppColors.primaryBackgroundColor,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           Padding(
@@ -61,11 +73,25 @@ class _AdminUsersState extends State<AdminUsers> {
               builder: (QueryResult result,
                   {VoidCallback? refetch, FetchMore? fetchMore}) {
                 if (result.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
                 }
 
                 if (result.hasException) {
-                  return Text(result.exception.toString());
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: result.exception!.graphqlErrors
+                        .map((error) => Text(
+                              "${error.message[0].toUpperCase()}${error.message.substring(1).toLowerCase()}",
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: Colors.red,
+                              ),
+                            ))
+                        .toList(),
+                  );
                 }
                 users = updateUsersData(result);
                 return ListView.builder(

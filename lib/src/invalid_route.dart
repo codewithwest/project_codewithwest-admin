@@ -1,4 +1,4 @@
-import 'package:codewithwest_admin/src/auth/login_admin_user.dart';
+import '/src/auth/login_admin_user.dart';
 import 'package:flutter/material.dart';
 
 class InvalidRoute extends StatelessWidget {

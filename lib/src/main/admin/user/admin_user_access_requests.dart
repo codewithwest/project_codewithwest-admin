@@ -1,10 +1,15 @@
+import '/src/helper/colors.dart';
+
 import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AdminUserAccessRequests extends StatefulWidget {
   const AdminUserAccessRequests({super.key});
+
+  static const title = 'Admin User Requests';
   static const routeName = '/admin/user/admin-user-access-requests';
+  static const icon = Icons.add_moderator_outlined;
 
   @override
   State<AdminUserAccessRequests> createState() =>
@@ -22,7 +27,13 @@ class _AdminUserAccessRequestsState extends State<AdminUserAccessRequests> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin User Requests')),
+      appBar: AppBar(
+        title: const Text(
+          'Admin User Requests',
+          style: TextStyle(color: AppColors.primaryBackgroundColor),
+        ),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           Padding(

@@ -1,6 +1,6 @@
-import 'package:codewithwest_admin/src/main/admin/projects/create_project.dart';
-import 'package:codewithwest_admin/src/main/admin/projects/create_project_category.dart';
-import 'package:codewithwest_admin/src/main/admin/user/admin_user_access_requests.dart';
+import '/src/main/admin/projects/create_project.dart';
+import '/src/main/admin/projects/create_project_category.dart';
+import '/src/main/admin/user/admin_user_access_requests.dart';
 
 import '/src/main/admin/projects/project_categories.dart';
 import '/src/main/admin/projects/projects.dart' show Projects;
@@ -94,7 +94,6 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(),
             darkTheme: ThemeData.dark(),
             themeMode: settingsController.themeMode,
-
             // Define a function to handle named routes in order to support
             // Flutter web url navigation and deep linking.
             onGenerateRoute: (RouteSettings routeSettings) {
@@ -106,7 +105,6 @@ class MyApp extends StatelessWidget {
                       return LandingPage();
                     case RequestAdminUserAccess.routeName:
                       return RequestAdminUserAccess();
-
                     case LoginAdminUser.routeName:
                       return checkAuth(
                           context, AdminDashboard(), settingsController);

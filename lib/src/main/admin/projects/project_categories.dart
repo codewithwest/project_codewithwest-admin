@@ -1,10 +1,15 @@
+import '/src/helper/colors.dart';
+
 import '/src/helper/queries/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class ProjectCategories extends StatefulWidget {
   const ProjectCategories({super.key});
+
+  static const title = 'Project Categories';
   static const routeName = '/admin/projects/project-categories';
+  static const icon = Icons.list_sharp;
 
   @override
   State<ProjectCategories> createState() => _ProjectCategoriesState();
@@ -21,7 +26,13 @@ class _ProjectCategoriesState extends State<ProjectCategories> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Project Categories')),
+      appBar: AppBar(
+        title: const Text(
+          'Project Categories',
+          style: TextStyle(color: AppColors.primaryBackgroundColor),
+        ),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           Padding(
