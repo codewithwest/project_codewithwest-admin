@@ -1,9 +1,9 @@
 name: Codewithwest admin deb package
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - dev
   release:
     types: [published]
 
@@ -17,6 +17,11 @@ jobs:
 
       - name: Pull Docker image
         run: docker pull ghcr.io/codewithwest/project_codewithwest-admin/codewithwest-flutter:3.29.0
+
+      - name: Create .env file
+        run: |
+          echo "API_URL=${{ secrets.API_URL }}" > .env
+          echo "AUTHORIZATION_TOKEN=${{ secrets.AUTHORIZATION_TOKEN }}" >> .env
 
       - name: Run build in Docker container
         run: |
