@@ -7,6 +7,5 @@ class Helper {
     setState(() {
       currentValue = newValue;
     });
-    print(newValue);
   }
 }

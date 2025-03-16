@@ -1,3 +1,5 @@
+import '/src/helper/colors.dart';
+
 import '/src/helper/queries/queries.dart';
 import '/src/helper/text_field_state_handler.dart';
 import '/src/main/admin/projects/create_project_category.dart';
@@ -12,7 +14,9 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 class CreateProject extends StatefulWidget {
   const CreateProject({super.key});
 
+  static const title = 'Create Project';
   static const routeName = '/admin/project/create-project';
+  static const icon = Icons.four_k_plus;
 
   @override
   State<CreateProject> createState() => _CreateProjectState();
@@ -24,7 +28,7 @@ class _CreateProjectState extends State<CreateProject> {
   int? _projectCategoryId;
   String _description = '';
   String _techStacksTextField = '';
-  List<String> _techStacks = [];
+  final List<String> _techStacks = [];
   String _githubLink = '';
   String _testLink = '';
   String _liveLink = '';
@@ -103,29 +107,13 @@ class _CreateProjectState extends State<CreateProject> {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
+        title: const Text(
+          'Create Project',
+          style: TextStyle(
+            color: AppColors.primaryBackgroundColor,
+          ),
+        ),
         centerTitle: true,
-        title: const Text('Codewithwest Admin',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-        shadowColor: Color.fromARGB(3, 31, 91, 151),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(150),
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Create Project',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
       ),
       body: Container(
         height: screenHeight,

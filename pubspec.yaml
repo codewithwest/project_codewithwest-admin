@@ -12,6 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_dotenv: ^5.2.1
   flutter_localizations:
     sdk: flutter
   graphql_flutter: ^5.1.2
@@ -30,5 +31,6 @@ flutter:
   generate: true
 
   assets:
+    - .env
     # Add assets from the images directory to the application.
     - assets/images/

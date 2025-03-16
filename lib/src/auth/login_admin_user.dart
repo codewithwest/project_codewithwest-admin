@@ -1,4 +1,4 @@
-import 'package:codewithwest_admin/src/settings/settings_service.dart';
+import '/src/settings/settings_service.dart';
 import '/src/auth/request_admin_user_access.dart';
 import '/src/components/auth_text_field.dart';
 import '/src/helper/queries/queries.dart';
@@ -114,7 +114,7 @@ class _LoginAdminUserState extends State<LoginAdminUser> {
               ),
               AuthTextField(
                 onTextChanged: updateEmail,
-                hintText: "amdin@mail.com",
+                hintText: "admin@gmail.com",
                 icon: Icons.email,
                 validationText: "Email cannot be empty",
               ),
@@ -203,6 +203,4 @@ class _LoginAdminUserState extends State<LoginAdminUser> {
       ),
     );
   }
-
-  // ... (dispose method)
 }

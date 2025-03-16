@@ -1,4 +1,4 @@
-import 'package:codewithwest_admin/src/main/admin/user/profile.dart';
+import '/src/main/admin/user/profile.dart';
 import 'package:flutter/material.dart';
 import 'sample_item.dart';
 import 'sample_item_details_view.dart';

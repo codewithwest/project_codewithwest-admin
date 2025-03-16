@@ -1,4 +1,5 @@
-import 'package:codewithwest_admin/src/main/admin/user/admin_users.dart';
+import '/src/helper/colors.dart';
+import '/src/main/admin/user/admin_users.dart';
 
 import '/src/components/auth_text_field.dart';
 import '/src/helper/mutations/mutations.dart';
@@ -9,7 +10,9 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 class CreateAdminUser extends StatefulWidget {
   const CreateAdminUser({super.key});
 
+  static const title = 'Create Admin User';
   static const routeName = '/auth/admin-user-create';
+  static const icon = Icons.person_add;
 
   @override
   State<CreateAdminUser> createState() => _CreateAdminUserState();
@@ -44,29 +47,13 @@ class _CreateAdminUserState extends State<CreateAdminUser> {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        title: const Text(
+          'Create Admin User',
+          style: TextStyle(
+            color: AppColors.primaryBackgroundColor,
+          ),
+        ),
         centerTitle: true,
-        title: const Text('Codewithwest Admin',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-        shadowColor: Color.fromARGB(3, 31, 91, 151),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(150),
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Create Admin User',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
       ),
       body: Container(
         margin: EdgeInsets.symmetric(

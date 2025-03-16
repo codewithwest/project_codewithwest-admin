@@ -1,3 +1,4 @@
+import '/src/helper/colors.dart';
 import 'package:flutter/material.dart';
 
 class AuthTextField extends StatelessWidget {
@@ -20,13 +21,17 @@ class AuthTextField extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Container(
+      margin: EdgeInsets.only(bottom: 3),
       width: screenWidth * 0.8,
       height: screenHeight * 0.07,
       padding: EdgeInsets.all(screenWidth * 0.012),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          color: const Color.fromARGB(14, 24, 23, 23),
-          border: Border.all(color: Colors.grey)),
+        borderRadius: BorderRadius.circular(6),
+        color: const Color.fromARGB(14, 24, 23, 23),
+        border: Border.all(
+          color: AppColors.primaryTextColor,
+        ),
+      ),
       child: Center(
         child: Row(
           children: <Widget>[
@@ -45,7 +50,7 @@ class AuthTextField extends StatelessWidget {
                 decoration: InputDecoration.collapsed(
                   hintText: hintText,
                   hintStyle: TextStyle(
-                    color: const Color.fromARGB(255, 105, 104, 104),
+                    color: Colors.grey,
                   ),
                 ),
                 validator: (value) {

@@ -1,4 +1,5 @@
-import 'package:codewithwest_admin/src/settings/settings_controller.dart';
+import '/src/helper/colors.dart';
+import '/src/settings/settings_controller.dart';
 
 import '/src/main/admin/user/profile.dart';
 import '/src/settings/settings_view.dart';
@@ -14,14 +15,27 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: Icon(Icons.emoji_nature_outlined),
-      elevation: 10,
+      backgroundColor: Colors.transparent,
+      leading: Icon(
+        Icons.emoji_nature_outlined,
+        color: AppColors.primaryBackgroundColor,
+      ),
+      elevation: 1,
       bottomOpacity: .7,
-      title: Text('My App'),
+      centerTitle: true,
+      title: Text(
+        'Codewithwest Admin',
+        style: TextStyle(
+          color: AppColors.primaryBackgroundColor,
+        ),
+      ),
       actions: <Widget>[
         PopupMenuButton<String>(
           position: PopupMenuPosition.under,
-          icon: Icon(Icons.menu),
+          icon: Icon(
+            Icons.menu,
+            color: AppColors.primaryBackgroundColor,
+          ),
           onSelected: (String result) {
             switch (result) {
               case 'settings':
@@ -42,7 +56,10 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
               value: 'settings',
               child: Row(
                 children: [
-                  Icon(Icons.settings),
+                  Icon(
+                    Icons.settings,
+                    color: AppColors.primaryBackgroundColor,
+                  ),
                   SizedBox(width: 10),
                   Text('Settings'),
                 ],
@@ -54,6 +71,7 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Icon(
                     Icons.person,
+                    color: AppColors.primaryBackgroundColor,
                   ),
                   SizedBox(width: 10),
                   Text('Profile'),
@@ -66,6 +84,7 @@ class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Icon(
                     Icons.logout,
+                    color: AppColors.primaryBackgroundColor,
                   ),
                   SizedBox(width: 10),
                   Text('Logout'),

@@ -1,3 +1,5 @@
+import '/src/helper/colors.dart';
+
 import '/src/helper/mutations/mutations.dart';
 
 import '/src/components/auth_text_field.dart';
@@ -8,7 +10,10 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 class CreateProjectCategory extends StatefulWidget {
   const CreateProjectCategory({super.key});
+
+  static const title = 'Create Project Category';
   static const routeName = '/admin/project/create-project-category';
+  static const icon = Icons.plus_one;
 
   @override
   State<CreateProjectCategory> createState() => _CreateProjectCategoryState();
@@ -33,35 +38,13 @@ class _CreateProjectCategoryState extends State<CreateProjectCategory> {
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: const Text(
-          'Codewithwest Admin',
+          'Create Project Category',
           style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Color.fromARGB(244, 30, 131, 233),
+            color: AppColors.primaryBackgroundColor,
           ),
         ),
-        shadowColor: Color.fromARGB(3, 31, 91, 151),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(150),
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Create Project Category',
-              style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 2, 131, 236)),
-            ),
-          ),
-        ),
+        centerTitle: true,
       ),
       body: Container(
         margin: EdgeInsets.symmetric(
