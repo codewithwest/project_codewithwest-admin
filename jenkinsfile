@@ -1,0 +1,120 @@
+pipeline {
+  agent {
+    docker {
+      image '${params.Image}'
+      args "-v ${params.VolumeMountPath}"
+    }
+  }
+  parameters {
+    string(name: 'Branch', defaultValue: 'dev', description: 'Branch to build')
+    string(name: 'VolumeMountPath', defaultValue: '/output:/output/', description: 'Volume mount path')
+    string(name: 'Repo', defaultValue: 'https://github.com/codewithwest', description: 'Target repository')
+    string(name: 'Image', defaultValue: 'ubuntu:latest', description: 'Docker image url')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        cleanWs()
+        git credentialsId: 'jenkins-github-auth', url: '${params.Repo}', branch: "${params.Branch}"
+        sh "echo 'Checking out branch: ${params.Branch}'"
+      }
+    }
+    stage('Check flutter health') {
+      steps {
+        sh "flutter doctor"
+        sh "flutter --version"
+        sh "dart --version"
+        sh "ls -la"
+      }
+    }
+
+    stage('Create secrets') {
+      steps {
+        withCredentials([
+          string(credentialsId: 'codewithwest-admin-url', variable: 'API_URL'),
+          string(credentialsId: 'codewithwest-admin-token', variable: 'AUTHORIZATION_TOKEN')
+        ]) {
+          sh('echo "API_URL=$API_URL" > .env')
+          sh('echo "AUTHORIZATION_TOKEN=$AUTHORIZATION_TOKEN" >> .env')
+          sh('cat .env')
+        }
+      }
+    }
+
+    stage('Build Application') {
+      steps {
+        sh '''
+          set -e
+          echo "Building Application"
+          export PATH="$PATH":"$HOME/.pub-cache/bin" && flutter pub get && dart pub global activate flutter_distributor && flutter_distributor release --name=prod --jobs=release-prod-linux-deb
+        '''
+      }
+    }
+
+   stage("Check for built package") {
+      steps {
+        script {
+            def buildNumber = env.BUILD_NUMBER
+            def branch = params.Branch
+
+            echo "Build number: $buildNumber"
+            echo "Built branch: $branch"
+            echo "Get debian file name"
+
+            withEnv(["BUILD_NUMBER=${buildNumber}", "BRANCH_NAME=${branch}"]) {
+              sh '''
+                file_name=$(find dist/ -type f -name "*.deb" -print -quit)
+
+                chmod 777 $file_name
+
+                echo "File name: $file_name"
+                echo "Build Number: $BUILD_NUMBER"
+                echo "Branch Name: $BRANCH_NAME"
+                echo "Adding build number to the file name..."
+
+                # Extract the base filename and extension
+                base_name=$(basename "$file_name")
+                extension="${base_name##*.}"
+                filename_without_extension="${base_name%.*}"
+
+                # Construct the new filename
+                new_file_name="${filename_without_extension}-${BRANCH_NAME}-${BUILD_NUMBER}.${extension}"
+
+                # Build the new full path
+                directory=$(dirname "$file_name")
+                new_full_path="${directory}/${new_file_name}"
+
+                # Rename the file
+                mv "$file_name" "$new_full_path"
+
+                echo "Renamed file to: $new_full_path"
+              '''
+            }
+        }
+      }
+    }
+
+      stage('Copy Archive') {
+        steps {
+          script {
+            // Create the output directory if it doesn't exist
+            sh 'mkdir -vp /output/'
+            sh 'chmod 777 /output/*'
+            // Copy the .deb file from the current workspace to the output directory
+            sh 'cp -vr dist/**/*.deb /output/'
+        }
+        }
+    }
+
+    stage("Clean up") {
+      steps {
+        sh 'rm -rf dist'
+        sh 'echo "Build completed Successfully!"'
+      }
+    }
+
+    
+  }
+
+}

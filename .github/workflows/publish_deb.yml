@@ -36,21 +36,20 @@ jobs:
           name: codewithwest-admin
           path: dist/*/*.deb
 
-
   release:
     needs: build
     runs-on: ubuntu-latest
-  
+
     steps:
       - name: Download Debian package
         uses: actions/download-artifact@v4
         with:
           name: codewithwest-admin
           path: dist/
-  
+
       - name: List downloaded files
         run: ls -la dist/*/
-  
+
       - name: Get package name
         id: get_package_name
         run: |
@@ -66,7 +65,7 @@ jobs:
             echo "No matching package found."
             exit 1 # Exit with an error code if no package is found.
           fi
-  
+
       - name: Attach to Release
         uses: actions/github-script@v6
         with:
@@ -74,12 +73,12 @@ jobs:
             const fs = require('fs').promises;
             const artifactPath = `dist/${{ steps.get_package_name.outputs.PACKAGE_NAME }}`;
             const releaseTag = '1.1.0'; // The tag you want to find
-            
+
             try {
             const artifactContent = await fs.readFile(artifactPath);
-            
+
             let releaseId = context.payload.release?.id; //get the id from the current release.
-            
+
             if(!releaseId){ // If the release id is not available, try to get it by tag.
               const release = await github.rest.repos.getReleaseByTag({
                 owner: context.repo.owner,
@@ -88,7 +87,7 @@ jobs:
               });
               releaseId = release.data.id;
             }
-            
+
             await github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
