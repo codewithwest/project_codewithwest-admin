@@ -100,7 +100,6 @@ pipeline {
           script {
             // Create the output directory if it doesn't exist
             sh 'mkdir -vp /output/'
-            sh 'chmod 777 /output/*'
             // Copy the .deb file from the current workspace to the output directory
             sh 'cp -vr dist/**/*.deb /output/'
         }
