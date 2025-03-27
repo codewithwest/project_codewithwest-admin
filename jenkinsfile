@@ -8,8 +8,8 @@ pipeline {
   parameters {
     string(name: 'Branch', defaultValue: 'dev', description: 'Branch to build')
     string(name: 'VolumeMountPath', defaultValue: 'output', description: 'Volume mount path')
-    string(name: 'Repo', defaultValue: 'repo url', description: 'Target repository')
-    string(name: 'Image', defaultValue: 'image urls', description: 'Docker image url')
+    string(name: 'Repo', defaultValue: 'https://github.com/codewithwest/project_codewithwest-admin', description: 'Target repository')
+    string(name: 'Image', defaultValue: 'ghcr.io/codewithwest/project_codewithwest-admin/codewithwest-flutter:3.29.0', description: 'Docker image url')
   }
 
   stages {
