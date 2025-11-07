@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y curl git unzip xz-utils sudo
 # liblzma-dev libstdc++-12-dev curl unzip zip xz-utils sudo
 
 # Download Flutter SDK
-RUN curl -fsSL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.29.0-stable.tar.xz -o flutter.tar.xz
+RUN curl -fsSL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.35.7-stable.tar.xz -o flutter.tar.xz
 
 RUN mkdir /opt/flutter && \
     tar -xf flutter.tar.xz -C /opt/flutter --strip-components=1 && \
