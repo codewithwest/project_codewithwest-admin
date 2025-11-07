@@ -25,7 +25,7 @@ FROM debian:12-slim
 
 # Install necessary runtime dependencies and build tools.
 RUN apt-get update && apt-get install \
-    clang cmake git ninja-build pkg-config libgtk-3-dev \
+    clang cmake git ninja-build pkg-config libgtk-3-dev libsecret-1-dev \
     liblzma-dev libstdc++-12-dev curl unzip zip xz-utils sudo -y \
     && rm -rf /var/lib/apt/lists/*
 
