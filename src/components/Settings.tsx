@@ -1,6 +1,7 @@
-import React from 'react';
+import React  from 'react';
 import { useAuthStore } from '../auth/store';
 import { User, Mail, Shield, LogOut, ExternalLink } from 'lucide-react';
+import { version } from '../../package.json';
 
 export const Settings = () => {
   const { email, userId, logout } = useAuthStore();
@@ -43,7 +44,7 @@ export const Settings = () => {
              <div className="space-y-2 text-sm text-neutral-400">
                <div className="flex justify-between border-b border-neutral-800/50 pb-2">
                  <span>Version</span>
-                 <span className="text-white font-semibold">1.0.0</span>
+                 <span className="text-white font-semibold">{version}</span>
                </div>
                <div className="flex justify-between border-b border-neutral-800/50 pb-2">
                  <span>Developer</span>

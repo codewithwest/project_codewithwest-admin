@@ -1,58 +1,111 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { GET_ADMIN_USER_ACCESS_REQUESTS } from '../graphql/queries';
-import { Loader2, ShieldCheck, Mail, Calendar, CheckCircle, XCircle, Heart } from 'lucide-react';
+import { Loader2, ShieldCheck, Mail, Calendar, CheckCircle, XCircle, Heart, LayoutGrid, List, Clock } from 'lucide-react';
 import { EmptyState } from './EmptyState';
+import { ErrorState } from './ErrorState';
 
 export const AccessRequests = () => {
+  const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
+    return (localStorage.getItem('access_requests_view_type') as 'grid' | 'list') || 'list';
+  });
+
   const { data, loading, error } = useQuery(GET_ADMIN_USER_ACCESS_REQUESTS, {
     variables: { limit: 50 },
   });
 
+  const toggleView = (type: 'grid' | 'list') => {
+    setViewType(type);
+    localStorage.setItem('access_requests_view_type', type);
+  };
+
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-blue-500" /></div>;
-  if (error) return <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400">{error.message}</div>;
+  if (error) {
+    const isUnauthorized = error.message.includes('401') || error.message.toLowerCase().includes('unauthorized');
+    return (
+      <ErrorState
+        title={isUnauthorized ? 'Access Denied' : 'Error Loading Requests'}
+        message={error.message}
+        variant={isUnauthorized ? 'unauthorized' : 'error'}
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
+  const requests = (data as any)?.getAdminUserAccessRequests?.data || [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold">Access Requests</h2>
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-white mb-2">Access Requests</h1>
+          <p className="text-neutral-400">Review and manage pending administrative access requests.</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex bg-neutral-900/50 p-1 rounded-xl border border-neutral-800">
+            <button
+              onClick={() => toggleView('grid')}
+              className={`p-2 rounded-lg transition-all ${viewType === 'grid' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'text-neutral-500 hover:text-white'}`}
+            >
+              <LayoutGrid size={20} />
+            </button>
+            <button
+              onClick={() => toggleView('list')}
+              className={`p-2 rounded-lg transition-all ${viewType === 'list' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'text-neutral-500 hover:text-white'}`}
+            >
+              <List size={20} />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        {!(data as any)?.getAdminUserAccessRequests?.data?.length ? (
-          <EmptyState 
-            title="All Caught Up!"
-            message="No pending access requests. Your inbox is clean and happy!"
-            icon={Heart}
-          />
-        ) : (
-          (data as any).getAdminUserAccessRequests.data.map((request: any) => (
-            <div key={request.id} className="bg-neutral-900/50 border border-neutral-800 p-6 rounded-2xl flex items-center justify-between hover:bg-neutral-900 transition-colors group">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500">
-                  <Mail size={20} />
+      {!requests.length ? (
+        <EmptyState 
+          title="All Caught Up!"
+          message="No pending access requests. Your inbox is clean and happy!"
+          icon={ShieldCheck}
+        />
+      ) : (
+        <div className={viewType === 'grid' 
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500" 
+          : "space-y-4 animate-in fade-in duration-500"
+        }>
+          {requests.map((request: any) => (
+            <div 
+              key={request.id} 
+              className={`group relative bg-neutral-900/40 backdrop-blur-xl border border-neutral-800/80 rounded-3xl overflow-hidden hover:border-blue-500/50 transition-all duration-500 shadow-xl ${viewType === 'list' ? 'flex items-center justify-between p-6' : 'p-8'}`}
+            >
+              <div className={viewType === 'list' ? "flex items-center gap-6" : "space-y-6"}>
+                <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all duration-500">
+                  <Mail size={28} />
                 </div>
+                
                 <div>
-                  <h3 className="font-semibold text-white">{request.email}</h3>
-                  <div className="flex items-center space-x-2 text-xs text-neutral-500">
-                    <Calendar size={12} />
-                    <span>Requested on {new Date(request.created_at).toLocaleDateString()}</span>
+                  <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
+                    {request.email}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1 text-xs text-neutral-500">
+                    <Clock size={12} />
+                    <span>Requested {new Date(request.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
-              
-              <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                 <button className="p-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-lg transition-colors border border-emerald-500/20">
-                   <CheckCircle size={20} />
-                 </button>
-                 <button className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors border border-red-500/20">
-                   <XCircle size={20} />
-                 </button>
+
+              <div className={`${viewType === 'list' ? 'flex items-center gap-4' : 'mt-8 flex items-center gap-4'}`}>
+                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-2xl transition-all font-bold active:scale-95 group/btn">
+                  <CheckCircle size={18} className="group-hover/btn:scale-110 transition-transform" />
+                  <span>Approve</span>
+                </button>
+                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl transition-all font-bold active:scale-95 group/btn">
+                  <XCircle size={18} className="group-hover/btn:scale-110 transition-transform" />
+                  <span>Reject</span>
+                </button>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

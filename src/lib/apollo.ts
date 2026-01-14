@@ -8,13 +8,15 @@ const httpLink = new HttpLink({
   uri: (import.meta as any).env.VITE_API_URL || 'http://localhost:4000/graphql', // Default to localhost if not set
 });
 
-const authLink = new SetContextLink((prevContext) => {  
+const authLink = new SetContextLink((prevContext) => { 
   const { token, userId } = useAuthStore.getState();
-  
+  const apiToken = (import.meta as any).env.VITE_API_TOKEN;
+  console.log(apiToken);
   return {
     headers: {
       ...((prevContext as any).headers || {}),
       Authorization: token ? `Bearer ${token}` : "",
+      "X-API-Key": apiToken || "",
       user_id: userId || "",
     }
   }

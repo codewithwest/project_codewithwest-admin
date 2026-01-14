@@ -1,7 +1,7 @@
 import { ApolloProvider } from '@apollo/client/react';
 import { client } from './lib/apollo';
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
-import { Home, Settings, Layout, AdminUsers, Projects, ProjectCategories, AccessRequests } from './components';
+import { HashRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { Home, Settings, Layout, AdminUsers, Projects, ProjectCategories, AccessRequests, Messages, Integrations } from './components';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import LoginPage from './auth/LoginPage';
 
@@ -19,6 +19,8 @@ export default function App() {
               <Route path="/projects" element={<Projects />} />
               <Route path="/categories" element={<ProjectCategories />} />
               <Route path="/access-requests" element={<AccessRequests />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/integrations" element={<Integrations />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
           </Route>

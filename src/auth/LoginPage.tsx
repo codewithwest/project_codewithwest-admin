@@ -6,8 +6,7 @@ import { useAuthStore } from './store';
 import { Lock, User, Mail, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [errorText, setErrorText] = useState('');
   
@@ -36,8 +35,7 @@ export default function LoginPage() {
     executeLogin({
       variables: {
         input: {
-          username,
-          email,
+          identifier,
           password
         }
       }
@@ -61,30 +59,15 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-neutral-500 ml-1 uppercase">Username</label>
+              <label className="text-xs font-semibold text-neutral-500 ml-1 uppercase">Email or Username</label>
               <div className="relative group">
                 <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-blue-500 transition-colors" />
                 <input
                   type="text"
-                  placeholder="tabloitTinker"
+                  placeholder="admin@gmail.com or west"
                   required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-neutral-700"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-neutral-500 ml-1 uppercase">Email</label>
-              <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-blue-500 transition-colors" />
-                <input
-                  type="email"
-                  placeholder="admin@gmail.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-neutral-700"
                 />
               </div>

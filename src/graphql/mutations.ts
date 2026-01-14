@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 
 export const LOGIN_ADMIN_USER = gql`
-  query LoginAdminUser($input: AdminUserInput!) {
+  query LoginAdminUser($input: AdminLoginInput!) {
     loginAdminUser(input: $input) {
       id
       email

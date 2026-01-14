@@ -6,3 +6,5 @@ export * from './Projects';
 export * from './ProjectCategories';
 export * from './AccessRequests';
 export * from './EmptyState';
+export * from './Integrations';
+export { default as Messages } from './Messages';

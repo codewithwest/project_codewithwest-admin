@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tag, Loader2, Plus, Calendar, X } from 'lucide-react';
+import { Tag, Loader2, Plus, Calendar, X, LayoutGrid, List, Sparkles } from 'lucide-react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { EmptyState } from './EmptyState';
+import { ErrorState } from './ErrorState';
 import { GET_PROJECT_CATEGORIES } from '../graphql/queries';
 import { CREATE_PROJECT_CATEGORY } from '../graphql/mutations';
 
 export const ProjectCategories = () => {
+  const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
+    return (localStorage.getItem('categories_view_type') as 'grid' | 'list') || 'grid';
+  });
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [name, setName] = useState('');
   const [errorText, setErrorText] = useState('');
@@ -22,7 +26,7 @@ export const ProjectCategories = () => {
       setName('');
       setErrorText('');
     },
-    onError: (error) => setErrorText(error.message),
+    onError: (error: any) => setErrorText(error.message),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,23 +36,60 @@ export const ProjectCategories = () => {
     });
   };
 
+  const toggleView = (type: 'grid' | 'list') => {
+    setViewType(type);
+    localStorage.setItem('categories_view_type', type);
+  };
+
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-amber-500" /></div>;
-  if (error) return <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400">{error.message}</div>;
+  if (error) {
+    const isUnauthorized = error.message.includes('401') || error.message.toLowerCase().includes('unauthorized');
+    return (
+      <ErrorState
+        title={isUnauthorized ? 'Access Denied' : 'Error Loading Categories'}
+        message={error.message}
+        variant={isUnauthorized ? 'unauthorized' : 'error'}
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
+  const categories = (data as any)?.getProjectCategories?.data || [];
 
   return (
-    <div className="space-y-6 relative min-h-screen">
-      <div className="flex justify-between items-center bg-neutral-900/40 p-4 rounded-2xl border border-neutral-800">
-        <h2 className="text-3xl font-bold">Project Categories</h2>
-        <button 
-          onClick={() => setIsCreateOpen(true)}
-          className="bg-amber-500 hover:bg-amber-400 text-neutral-900 px-4 py-2 rounded-xl font-bold flex items-center space-x-2 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
-        >
-          <Plus size={18} />
-          <span>New Category</span>
-        </button>
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-white mb-2">Project Categories</h1>
+          <p className="text-neutral-400">Organize your projects into logical groups.</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex bg-neutral-900/50 p-1 rounded-xl border border-neutral-800">
+            <button
+              onClick={() => toggleView('grid')}
+              className={`p-2 rounded-lg transition-all ${viewType === 'grid' ? 'bg-amber-500 text-neutral-900 shadow-lg shadow-amber-500/20' : 'text-neutral-500 hover:text-white'}`}
+            >
+              <LayoutGrid size={20} />
+            </button>
+            <button
+              onClick={() => toggleView('list')}
+              className={`p-2 rounded-lg transition-all ${viewType === 'list' ? 'bg-amber-500 text-neutral-900 shadow-lg shadow-amber-500/20' : 'text-neutral-500 hover:text-white'}`}
+            >
+              <List size={20} />
+            </button>
+          </div>
+          
+          <button 
+            onClick={() => setIsCreateOpen(true)}
+            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-neutral-900 px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-amber-600/20 active:scale-95"
+          >
+            <Plus size={20} />
+            New Category
+          </button>
+        </div>
       </div>
 
-      {/* Slide-over Form */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-neutral-950/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsCreateOpen(false)} />
@@ -96,35 +137,52 @@ export const ProjectCategories = () => {
         </div>
       )}
 
-      {!(data as any)?.getProjectCategories?.data?.length ? (
+      {!categories.length ? (
         <EmptyState 
           title="No Categories"
           message="Categories help keep your projects organized. Create your first one to get started!"
           icon={Tag}
           action={
-            <button onClick={() => setIsCreateOpen(true)} className="bg-amber-500 hover:bg-amber-400 text-neutral-900 px-6 py-2 rounded-xl font-bold transition-all">
+            <button 
+              onClick={() => setIsCreateOpen(true)}
+              className="px-6 py-3 bg-amber-500 text-neutral-900 rounded-2xl font-bold hover:bg-amber-400 transition-all shadow-xl shadow-amber-600/20"
+            >
               Initialize First Category
             </button>
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(data as any)?.getProjectCategories?.data?.map((category: any) => (
-              <div key={category.id} className="bg-neutral-900/50 border border-neutral-800 p-6 rounded-2xl flex flex-col justify-between hover:border-amber-500/30 transition-all group relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Plus className="text-amber-500/50 rotate-45" size={14} />
+        <div className={viewType === 'grid' 
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500" 
+          : "space-y-4 animate-in fade-in duration-500"
+        }>
+          {categories.map((category: any) => (
+            <div 
+              key={category.id} 
+              className={`group relative bg-neutral-900/40 backdrop-blur-xl border border-neutral-800/80 rounded-3xl overflow-hidden hover:border-amber-500/50 transition-all duration-500 shadow-xl ${viewType === 'list' ? 'flex items-center justify-between p-6' : 'p-8'}`}
+            >
+              <div className={viewType === 'list' ? "flex items-center gap-6" : "space-y-6"}>
+                <div className="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-neutral-900 group-hover:shadow-lg group-hover:shadow-amber-500/30 transition-all duration-500">
+                  <Tag size={28} />
                 </div>
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
-                    <Tag size={20} />
+                
+                <div>
+                  <h3 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors uppercase tracking-widest antialiased">
+                    {category.name}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1 text-xs text-neutral-500">
+                    <Calendar size={12} />
+                    <span>Created {new Date(category.created_at).toLocaleDateString()}</span>
                   </div>
-                  <h3 className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors uppercase tracking-wider">{category.name}</h3>
-                </div>
-                <div className="flex items-center text-[10px] text-neutral-500 space-x-2 pt-4 border-t border-neutral-800/50">
-                  <Calendar size={12} />
-                  <span>Created {new Date(category.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
+
+              <div className={`${viewType === 'list' ? 'flex items-center gap-4' : 'mt-8 flex items-center gap-4'}`}>
+                 <div className="p-2 text-amber-500/20 group-hover:text-amber-500/50 transition-colors">
+                    <Sparkles size={20} />
+                 </div>
+              </div>
+            </div>
           ))}
         </div>
       )}

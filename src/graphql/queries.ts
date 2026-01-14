@@ -73,3 +73,21 @@ export const GET_ADMIN_USER_ACCESS_REQUESTS = gql`
     }
   }
 `;
+export const GET_CONTACT_MESSAGES = gql`
+  query GetContactMessages($limit: Int, $page: Int) {
+    getContactMessages(limit: $limit, page: $page) {
+      data {
+        id
+        name
+        email
+        message
+        created_at
+      }
+      pagination {
+        totalItems
+        totalPages
+        currentPage
+      }
+    }
+  }
+`;
