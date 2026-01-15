@@ -1,8 +1,8 @@
 {
-  "name": "codewithwest-admin-desktop",
-  "productName": "codewithwest-admin-desktop",
-  "version": "2.0.0",
-  "description": "My Electron application description",
+  "name": "codewithwest-admin",
+  "productName": "CodeWithWest Admin",
+  "version": "2.0.1",
+  "description": "CodeWithWest Admin profile management",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
