@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
-import { LayoutGrid, List, Plus, Key, Trash2, Clock, CheckCircle2, XCircle, ShieldCheck, Copy, Check, Ban } from 'lucide-react';
+import { NetworkStatus, gql } from '@apollo/client';
+import { LayoutGrid, List, Plus, Key, Trash2, Clock, CheckCircle2, XCircle, ShieldCheck, Copy, Check } from 'lucide-react';
 import { EmptyState } from './EmptyState';
+import { PremiumLoader } from './PremiumLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const GET_INTEGRATIONS = gql`
   query GetIntegrations {
@@ -53,7 +55,12 @@ export function Integrations() {
   const [successMessage, setSuccessMessage] = useState('');
   const [revokeError, setRevokeError] = useState('');
 
-  const { data, loading, error, refetch } = useQuery(GET_INTEGRATIONS);
+  const { data, loading, error, networkStatus, refetch } = useQuery(GET_INTEGRATIONS, {
+    notifyOnNetworkStatusChange: true,
+  });
+  
+  const isRefetching = networkStatus === NetworkStatus.refetch || networkStatus === NetworkStatus.poll;
+
   const [createIntegration, { loading: creating }] = useMutation(CREATE_INTEGRATION);
   const [revokeIntegration] = useMutation(REVOKE_INTEGRATION);
 
@@ -67,9 +74,10 @@ export function Integrations() {
     setCreateError('');
     try {
       const result = await createIntegration({ variables: { name: newName } });
+      const data = result.data as any;
       setNewName('');
       setIsModalOpen(false);
-      setSuccessMessage(`Integration "${result.data.createIntegration.name}" created successfully!`);
+      setSuccessMessage(`Integration "${data.createIntegration.name}" created successfully!`);
       setTimeout(() => setSuccessMessage(''), 5000);
       refetch();
     } catch (err: any) {
@@ -98,12 +106,29 @@ export function Integrations() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
-
   const integrations = (data as any)?.getIntegrations?.data || [];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700 relative">
+      {/* Background Sync Indicator */}
+      <AnimatePresence>
+        {isRefetching && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-0 right-0 flex justify-center z-50 pointer-events-none"
+          >
+            <div className="bg-blue-500/10 backdrop-blur-md border border-blue-500/20 px-4 py-1.5 rounded-full flex items-center gap-3 shadow-2xl shadow-blue-500/20">
+              <PremiumLoader size="sm" variant="subtle" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">
+                Syncing Credentials
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Success Toast */}
       {successMessage && (
         <div className="fixed top-8 right-8 z-50 bg-emerald-500/10 backdrop-blur-xl border border-emerald-500/50 rounded-2xl p-4 shadow-2xl shadow-emerald-500/20 animate-in slide-in-from-top-4 duration-500">
@@ -166,7 +191,11 @@ export function Integrations() {
         </div>
       </div>
 
-      {integrations.length === 0 ? (
+      {loading && networkStatus === NetworkStatus.loading ? (
+        <div className="flex items-center justify-center py-20">
+          <PremiumLoader size="lg" label="Decrypting Vault" />
+        </div>
+      ) : integrations.length === 0 ? (
         <EmptyState
           title="No Integrations"
           message="Create your first integration token to start accessing the API externally."
@@ -289,10 +318,7 @@ export function Integrations() {
                   className="flex-1 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {creating ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Creating...
-                    </>
+                    <PremiumLoader size="sm" variant="subtle" />
                   ) : (
                     'Generate Token'
                   )}

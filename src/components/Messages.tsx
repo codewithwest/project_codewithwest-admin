@@ -1,34 +1,41 @@
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { GET_CONTACT_MESSAGES } from '../graphql/queries';
-import { Mail, User, Clock, MessageSquare, Loader2, AlertCircle, LayoutGrid, List } from 'lucide-react';
+import { Mail, User, Clock, MessageSquare, AlertCircle, LayoutGrid, List } from 'lucide-react';
 import { EmptyState } from './EmptyState';
 import { ErrorState } from './ErrorState';
+import { PremiumLoader } from './PremiumLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Messages() {
   const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
     return (localStorage.getItem('messages_view_type') as 'grid' | 'list') || 'list';
   });
 
-  const { loading, error, data } = useQuery(GET_CONTACT_MESSAGES, {
+  const { loading, error, data, networkStatus } = useQuery(GET_CONTACT_MESSAGES, {
     variables: { limit: 50 },
-    pollInterval: 10000, // Poll every 10 seconds
+    pollInterval: 10000, 
+    notifyOnNetworkStatusChange: true,
   });
+
+  const isRefetching = networkStatus === NetworkStatus.refetch || networkStatus === NetworkStatus.poll;
 
   const toggleView = (type: 'grid' | 'list') => {
     setViewType(type);
     localStorage.setItem('messages_view_type', type);
   };
 
-  if (loading) {
+  // Initial loading state (no data yet)
+  if (loading && networkStatus === NetworkStatus.loading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      <div className="h-full flex flex-col items-center justify-center bg-neutral-950/20">
+        <PremiumLoader size="lg" label="Syncing Inbox" />
       </div>
     );
   }
 
-  if (error) {
+  if (error && !data) {
     const isUnauthorized = error.message.includes('401') || error.message.toLowerCase().includes('unauthorized');
     return (
       <ErrorState
@@ -43,7 +50,26 @@ export default function Messages() {
   const messages = (data as any)?.getContactMessages?.data || [];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700 relative">
+      {/* Background Sync Indicator */}
+      <AnimatePresence>
+        {isRefetching && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-0 left-0 right-0 flex justify-center z-50 pointer-events-none"
+          >
+            <div className="bg-blue-500/10 backdrop-blur-md border border-blue-500/20 px-4 py-1.5 rounded-full flex items-center gap-3 shadow-2xl shadow-blue-500/20">
+              <PremiumLoader size="sm" variant="subtle" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">
+                Refreshing Stream
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2">Messages</h1>

@@ -7,4 +7,5 @@ export * from './ProjectCategories';
 export * from './AccessRequests';
 export * from './EmptyState';
 export * from './Integrations';
+export * from './PremiumLoader';
 export { default as Messages } from './Messages';

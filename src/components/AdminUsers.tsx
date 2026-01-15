@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { GET_ADMIN_USERS } from '../graphql/queries';
 import { CREATE_ADMIN_USER } from '../graphql/mutations';
-import { Loader2, User, ShieldAlert, UserPlus, X, Mail, Lock, Plus, LayoutGrid, List, Clock } from 'lucide-react';
+import { User, ShieldAlert, UserPlus, X, Mail, Lock, Plus, LayoutGrid, List, Clock } from 'lucide-react';
 import { EmptyState } from './EmptyState';
 import { ErrorState } from './ErrorState';
+import { PremiumLoader } from './PremiumLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const AdminUsers = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
@@ -16,9 +19,12 @@ export const AdminUsers = () => {
   const [password, setPassword] = useState('');
   const [errorText, setErrorText] = useState('');
 
-  const { data, loading, error } = useQuery(GET_ADMIN_USERS, {
+  const { data, loading, error, networkStatus } = useQuery(GET_ADMIN_USERS, {
     variables: { limit: 50 },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const isRefetching = networkStatus === NetworkStatus.refetch || networkStatus === NetworkStatus.poll;
 
   const [createAdmin, { loading: creating }] = useMutation(CREATE_ADMIN_USER, {
     refetchQueries: [{ query: GET_ADMIN_USERS, variables: { limit: 50 } }],
@@ -46,8 +52,7 @@ export const AdminUsers = () => {
     localStorage.setItem('admin_users_view_type', type);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-blue-500" /></div>;
-  if (error) {
+  if (error && !data) {
     const isUnauthorized = error.message.includes('401') || error.message.toLowerCase().includes('unauthorized');
     return (
       <ErrorState
@@ -62,7 +67,26 @@ export const AdminUsers = () => {
   const users = (data as any)?.getAdminUsers?.data || [];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700 relative">
+      {/* Background Sync Indicator */}
+      <AnimatePresence>
+        {isRefetching && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-0 right-0 flex justify-center z-50 pointer-events-none"
+          >
+            <div className="bg-indigo-500/10 backdrop-blur-md border border-indigo-500/20 px-4 py-1.5 rounded-full flex items-center gap-3 shadow-2xl shadow-indigo-500/20">
+              <PremiumLoader size="sm" variant="subtle" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">
+                Syncing Guardians
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2">Admin Users</h1>
@@ -95,7 +119,11 @@ export const AdminUsers = () => {
         </div>
       </div>
 
-      {!users.length ? (
+      {loading && networkStatus === NetworkStatus.loading ? (
+        <div className="flex items-center justify-center py-20">
+          <PremiumLoader size="lg" label="Initializing Directory" />
+        </div>
+      ) : !users.length ? (
         <EmptyState 
           title="Only You Here"
           message="It's a bit lonely! Invite other admins to help you manage the fleet."
@@ -227,7 +255,7 @@ export const AdminUsers = () => {
                   disabled={creating}
                   className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
-                  {creating ? <Loader2 className="animate-spin" /> : (
+                  {creating ? <PremiumLoader size="sm" variant="subtle" /> : (
                     <>
                       <Plus size={18} />
                       <span>Create User</span>

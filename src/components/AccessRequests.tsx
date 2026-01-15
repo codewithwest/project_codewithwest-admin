@@ -1,26 +1,31 @@
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { GET_ADMIN_USER_ACCESS_REQUESTS } from '../graphql/queries';
-import { Loader2, ShieldCheck, Mail, Calendar, CheckCircle, XCircle, Heart, LayoutGrid, List, Clock } from 'lucide-react';
+import { ShieldCheck, Mail, CheckCircle, XCircle, LayoutGrid, List, Clock } from 'lucide-react';
 import { EmptyState } from './EmptyState';
 import { ErrorState } from './ErrorState';
+import { PremiumLoader } from './PremiumLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const AccessRequests = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
     return (localStorage.getItem('access_requests_view_type') as 'grid' | 'list') || 'list';
   });
 
-  const { data, loading, error } = useQuery(GET_ADMIN_USER_ACCESS_REQUESTS, {
+  const { data, loading, error, networkStatus } = useQuery(GET_ADMIN_USER_ACCESS_REQUESTS, {
     variables: { limit: 50 },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const isRefetching = networkStatus === NetworkStatus.refetch || networkStatus === NetworkStatus.poll;
 
   const toggleView = (type: 'grid' | 'list') => {
     setViewType(type);
     localStorage.setItem('access_requests_view_type', type);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-blue-500" /></div>;
-  if (error) {
+  if (error && !data) {
     const isUnauthorized = error.message.includes('401') || error.message.toLowerCase().includes('unauthorized');
     return (
       <ErrorState
@@ -35,7 +40,25 @@ export const AccessRequests = () => {
   const requests = (data as any)?.getAdminUserAccessRequests?.data || [];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700 relative">
+      {/* Background Sync Indicator */}
+      <AnimatePresence>
+        {isRefetching && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-0 right-0 flex justify-center z-50 pointer-events-none"
+          >
+            <div className="bg-blue-500/10 backdrop-blur-md border border-blue-500/20 px-4 py-1.5 rounded-full flex items-center gap-3 shadow-2xl shadow-blue-500/20">
+              <PremiumLoader size="sm" variant="subtle" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">
+                Gatekeeper Sync
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2">Access Requests</h1>
@@ -60,7 +83,11 @@ export const AccessRequests = () => {
         </div>
       </div>
 
-      {!requests.length ? (
+      {loading && networkStatus === NetworkStatus.loading ? (
+        <div className="flex items-center justify-center py-20">
+          <PremiumLoader size="lg" label="Validating Credentials" />
+        </div>
+      ) : !requests.length ? (
         <EmptyState 
           title="All Caught Up!"
           message="No pending access requests. Your inbox is clean and happy!"

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { GET_PROJECTS, GET_PROJECT_CATEGORIES } from '../graphql/queries';
 import { CREATE_PROJECT } from '../graphql/mutations';
-import { Loader2, FolderKanban, LayoutGrid, List, Plus, X, Github, ExternalLink } from 'lucide-react';
+import { FolderKanban, LayoutGrid, List, Plus, X, Github, ExternalLink } from 'lucide-react';
 import { EmptyState } from './EmptyState';
 import { ErrorState } from './ErrorState';
+import { PremiumLoader } from './PremiumLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Projects = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
@@ -22,11 +25,14 @@ export const Projects = () => {
   const [liveLink, setLiveLink] = useState('');
   const [errorText, setErrorText] = useState('');
 
-  const { data, loading, error } = useQuery(GET_PROJECTS, {
+  const { data, loading, error, networkStatus } = useQuery(GET_PROJECTS, {
     variables: { limit: 50 },
+    notifyOnNetworkStatusChange: true,
   });
 
   const { data: catData } = useQuery(GET_PROJECT_CATEGORIES, { variables: { limit: 100 } });
+
+  const isRefetching = networkStatus === NetworkStatus.refetch || networkStatus === NetworkStatus.poll;
 
   const [createProject, { loading: creating }] = useMutation(CREATE_PROJECT, {
     refetchQueries: [{ query: GET_PROJECTS, variables: { limit: 50 } }],
@@ -85,8 +91,7 @@ export const Projects = () => {
     localStorage.setItem('projects_view_type', type);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-blue-500" /></div>;
-  if (error) {
+  if (error && !data) {
     const isUnauthorized = error.message.includes('401') || error.message.toLowerCase().includes('unauthorized');
     return (
       <ErrorState
@@ -99,7 +104,25 @@ export const Projects = () => {
   }
 
   return (
-    <div className="space-y-6 relative min-h-screen">
+    <div className="space-y-6 relative min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+      {/* Background Sync Indicator */}
+      <AnimatePresence>
+        {isRefetching && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-0 right-0 flex justify-center z-50 pointer-events-none"
+          >
+            <div className="bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 px-4 py-1.5 rounded-full flex items-center gap-3 shadow-2xl shadow-emerald-500/20">
+              <PremiumLoader size="sm" variant="subtle" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">
+                Syncing Projects
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex justify-between items-center bg-neutral-900/40 p-4 rounded-2xl border border-neutral-800">
         <h2 className="text-3xl font-bold">Projects</h2>
         
@@ -240,7 +263,7 @@ export const Projects = () => {
                   disabled={creating}
                   className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
-                  {creating ? <Loader2 className="animate-spin" /> : <span>Create Project</span>}
+                  {creating ? <PremiumLoader size="sm" variant="subtle" /> : <span>Create Project</span>}
                 </button>
               </form>
             </div>
@@ -248,7 +271,11 @@ export const Projects = () => {
         </div>
       )}
 
-      {!(data as any)?.getProjects?.data?.length ? (
+      {loading && networkStatus === NetworkStatus.loading ? (
+        <div className="flex items-center justify-center py-20">
+          <PremiumLoader size="lg" label="Cataloging Projects" />
+        </div>
+      ) : !(data as any)?.getProjects?.data?.length ? (
         <EmptyState 
           title="No Projects Yet"
           message="Your portfolio is waiting for its first masterpiece. Time to showcase your best work!"

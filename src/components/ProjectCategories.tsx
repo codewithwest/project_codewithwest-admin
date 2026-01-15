@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Tag, Loader2, Plus, Calendar, X, LayoutGrid, List, Sparkles } from 'lucide-react';
+import { Tag, Plus, Calendar, X, LayoutGrid, List, Sparkles } from 'lucide-react';
 import { useQuery, useMutation } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { EmptyState } from './EmptyState';
 import { ErrorState } from './ErrorState';
+import { PremiumLoader } from './PremiumLoader';
 import { GET_PROJECT_CATEGORIES } from '../graphql/queries';
 import { CREATE_PROJECT_CATEGORY } from '../graphql/mutations';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const ProjectCategories = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
@@ -15,9 +17,12 @@ export const ProjectCategories = () => {
   const [name, setName] = useState('');
   const [errorText, setErrorText] = useState('');
 
-  const { data, loading, error } = useQuery(GET_PROJECT_CATEGORIES, {
+  const { data, loading, error, networkStatus } = useQuery(GET_PROJECT_CATEGORIES, {
     variables: { limit: 50 },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const isRefetching = networkStatus === NetworkStatus.refetch || networkStatus === NetworkStatus.poll;
 
   const [createCategory, { loading: creating }] = useMutation(CREATE_PROJECT_CATEGORY, {
     refetchQueries: [{ query: GET_PROJECT_CATEGORIES, variables: { limit: 50 } }],
@@ -41,8 +46,7 @@ export const ProjectCategories = () => {
     localStorage.setItem('categories_view_type', type);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-amber-500" /></div>;
-  if (error) {
+  if (error && !data) {
     const isUnauthorized = error.message.includes('401') || error.message.toLowerCase().includes('unauthorized');
     return (
       <ErrorState
@@ -57,7 +61,26 @@ export const ProjectCategories = () => {
   const categories = (data as any)?.getProjectCategories?.data || [];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
+    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700 relative">
+      {/* Background Sync Indicator */}
+      <AnimatePresence>
+        {isRefetching && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-0 right-0 flex justify-center z-50 pointer-events-none"
+          >
+            <div className="bg-amber-500/10 backdrop-blur-md border border-amber-500/20 px-4 py-1.5 rounded-full flex items-center gap-3 shadow-2xl shadow-amber-500/20">
+              <PremiumLoader size="sm" variant="subtle" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">
+                Updating Taxonomies
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2">Project Categories</h1>
@@ -129,7 +152,7 @@ export const ProjectCategories = () => {
                   disabled={creating}
                   className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
-                  {creating ? <Loader2 className="animate-spin" /> : <span>Create Category</span>}
+                  {creating ? <PremiumLoader size="sm" variant="subtle" /> : <span>Create Category</span>}
                 </button>
               </form>
             </div>
@@ -137,7 +160,11 @@ export const ProjectCategories = () => {
         </div>
       )}
 
-      {!categories.length ? (
+      {loading && networkStatus === NetworkStatus.loading ? (
+        <div className="flex items-center justify-center py-20">
+          <PremiumLoader size="lg" label="Loading Categories" />
+        </div>
+      ) : !categories.length ? (
         <EmptyState 
           title="No Categories"
           message="Categories help keep your projects organized. Create your first one to get started!"

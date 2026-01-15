@@ -27,3 +27,24 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   @apply bg-neutral-700;
 }
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .translate-z-8 {
+    transform: translateZ(32px);
+  }
+  .-translate-z-8 {
+    transform: translateZ(-32px);
+  }
+  .rotate-y-90 {
+    transform: rotateY(90deg);
+  }
+  .-rotate-y-90 {
+    transform: rotateY(-90deg);
+  }
+}
