@@ -11,6 +11,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     icon: './src/assets/logo', // Electron Forge will add the appropriate extension
+    executableName: 'codewithwest-admin',
   },
   rebuildConfig: {},
   makers: [
