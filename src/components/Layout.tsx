@@ -33,7 +33,18 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       {/* Sidebar */}
       <aside className="w-64 border-r border-neutral-800 bg-neutral-900/50 flex flex-col">
         <div className="p-6 flex items-center gap-3">
-          <img src={new URL('../assets/logo.png', import.meta.url).href} alt="CodeWithWest" className="w-10 h-10 object-contain" />
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center border border-white/5 overflow-hidden">
+            <img 
+              src={new URL('../assets/logo.png', import.meta.url).href} 
+              alt="CodeWithWest Logo" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback if logo fails
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://raw.githubusercontent.com/west/codewithwest/main/public/vkt-logo.svg'; // Or any reliable fallback
+              }}
+            />
+          </div>
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
             Admin Panel
           </h1>

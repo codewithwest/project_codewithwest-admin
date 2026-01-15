@@ -11,7 +11,7 @@ const httpLink = new HttpLink({
 const authLink = new SetContextLink((prevContext) => { 
   const { token, userId } = useAuthStore.getState();
   const apiToken = (import.meta as any).env.VITE_API_TOKEN;
-  console.log(apiToken);
+
   return {
     headers: {
       ...((prevContext as any).headers || {}),
