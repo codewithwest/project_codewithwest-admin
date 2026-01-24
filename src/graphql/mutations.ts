@@ -37,3 +37,12 @@ export const CREATE_PROJECT = gql`
     }
   }
 `;
+
+export const UPDATE_PROJECT = gql`
+  mutation UpdateProject($id: Int!, $input: ProjectInput!) {
+    updateProject(id: $id, input: $input) {
+      id
+      name
+    }
+  }
+`;

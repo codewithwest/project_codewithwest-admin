@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { NetworkStatus } from '@apollo/client';
 import { GET_PROJECTS, GET_PROJECT_CATEGORIES } from '../graphql/queries';
-import { CREATE_PROJECT } from '../graphql/mutations';
-import { FolderKanban, LayoutGrid, List, Plus, X, Github, ExternalLink } from 'lucide-react';
+import { CREATE_PROJECT, UPDATE_PROJECT } from '../graphql/mutations';
+import { FolderKanban, LayoutGrid, List, Plus, X, Github, ExternalLink, Edit2 } from 'lucide-react';
 import { EmptyState } from './EmptyState';
 import { ErrorState } from './ErrorState';
 import { PremiumLoader } from './PremiumLoader';
@@ -13,9 +13,10 @@ export const Projects = () => {
   const [viewType, setViewType] = useState<'grid' | 'list'>(() => {
     return (localStorage.getItem('projects_view_type') as 'grid' | 'list') || 'grid';
   });
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
 
-  // Create Form State
+  // Form State
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
@@ -37,7 +38,16 @@ export const Projects = () => {
   const [createProject, { loading: creating }] = useMutation(CREATE_PROJECT, {
     refetchQueries: [{ query: GET_PROJECTS, variables: { limit: 50 } }],
     onCompleted: () => {
-      setIsCreateOpen(false);
+      setIsFormOpen(false);
+      resetForm();
+    },
+    onError: (error: any) => setErrorText(error.message),
+  });
+
+  const [updateProject, { loading: updating }] = useMutation(UPDATE_PROJECT, {
+    refetchQueries: [{ query: GET_PROJECTS, variables: { limit: 50 } }],
+    onCompleted: () => {
+      setIsFormOpen(false);
       resetForm();
     },
     onError: (error: any) => setErrorText(error.message),
@@ -52,6 +62,18 @@ export const Projects = () => {
     setGithubLink('');
     setLiveLink('');
     setErrorText('');
+    setEditingProject(null);
+  };
+
+  const startEdit = (project: any) => {
+    setEditingProject(project);
+    setName(project.name);
+    setCategoryId(project.project_category_id.toString());
+    setDescription(project.description);
+    setTechStacks(Array.isArray(project.tech_stacks) ? project.tech_stacks : project.tech_stacks?.split(',').map((t: string) => t.trim()) || []);
+    setGithubLink(project.github_link || '');
+    setLiveLink(project.live_link || '');
+    setIsFormOpen(true);
   };
 
   const handleAddTech = () => {
@@ -71,19 +93,29 @@ export const Projects = () => {
       setErrorText('Please select a category');
       return;
     }
-    createProject({
-      variables: {
-        input: {
-          name,
-          project_category_id: parseInt(categoryId),
-          description,
-          tech_stacks: techStacks,
-          github_link: githubLink,
-          live_link: liveLink,
-          test_link: "" // Legacy field
-        }
+
+    const variables = {
+      input: {
+        name,
+        project_category_id: parseInt(categoryId),
+        description,
+        tech_stacks: techStacks,
+        github_link: githubLink,
+        live_link: liveLink,
+        test_link: "" // Legacy field
       }
-    });
+    };
+
+    if (editingProject) {
+      updateProject({
+        variables: {
+          id: editingProject.id,
+          ...variables
+        }
+      });
+    } else {
+      createProject({ variables });
+    }
   };
 
   const toggleView = (type: 'grid' | 'list') => {
@@ -143,7 +175,7 @@ export const Projects = () => {
           </div>
 
           <button 
-            onClick={() => setIsCreateOpen(true)}
+            onClick={() => { resetForm(); setIsFormOpen(true); }}
             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-bold flex items-center space-x-2 transition-all shadow-lg shadow-blue-500/20 active:scale-95"
           >
             <Plus size={18} />
@@ -153,14 +185,14 @@ export const Projects = () => {
       </div>
 
       {/* Slide-over Form */}
-      {isCreateOpen && (
+      {isFormOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-neutral-950/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsCreateOpen(false)} />
+          <div className="absolute inset-0 bg-neutral-950/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => { setIsFormOpen(false); resetForm(); }} />
           <div className="relative w-full max-w-md bg-neutral-900 border-l border-neutral-800 h-full overflow-y-auto animate-in slide-in-from-right duration-300 shadow-2xl">
             <div className="p-8 space-y-8">
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-bold">Create Project</h3>
-                <button onClick={() => setIsCreateOpen(false)} className="text-neutral-500 hover:text-white p-2">
+                <h3 className="text-2xl font-bold">{editingProject ? 'Edit Project' : 'Create Project'}</h3>
+                <button onClick={() => { setIsFormOpen(false); resetForm(); }} className="text-neutral-500 hover:text-white p-2">
                   <X size={24} />
                 </button>
               </div>
@@ -260,10 +292,10 @@ export const Projects = () => {
 
                 <button
                   type="submit"
-                  disabled={creating}
+                  disabled={creating || updating}
                   className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
-                  {creating ? <PremiumLoader size="sm" variant="subtle" /> : <span>Create Project</span>}
+                  {(creating || updating) ? <PremiumLoader size="sm" variant="subtle" /> : <span>{editingProject ? 'Save Changes' : 'Create Project'}</span>}
                 </button>
               </form>
             </div>
@@ -282,7 +314,7 @@ export const Projects = () => {
           icon={FolderKanban}
           action={
             <button 
-              onClick={() => setIsCreateOpen(true)}
+              onClick={() => { resetForm(); setIsFormOpen(true); }}
               className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/20"
             >
               Initialize First Project
@@ -350,6 +382,13 @@ export const Projects = () => {
                     <ExternalLink size={18} />
                   </a>
                 )}
+                <button 
+                  onClick={() => startEdit(project)}
+                  className="p-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-emerald-400 rounded-xl transition-all ml-auto"
+                  title="Edit Project"
+                >
+                  <Edit2 size={18} />
+                </button>
               </div>
             </div>
           ))}
