@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
 import { NetworkStatus } from '@apollo/client';
 import { GET_PROJECTS, GET_PROJECT_CATEGORIES } from '../graphql/queries';
-import { CREATE_PROJECT, UPDATE_PROJECT } from '../graphql/mutations';
-import { FolderKanban, LayoutGrid, List, Plus, X, Github, ExternalLink, Edit2 } from 'lucide-react';
+import { CREATE_PROJECT, UPDATE_PROJECT, DELETE_PROJECT } from '../graphql/mutations';
+import { FolderKanban, LayoutGrid, List, Plus, X, Github, ExternalLink, Edit2, Trash2 } from 'lucide-react';
 import { EmptyState } from './EmptyState';
 import { ErrorState } from './ErrorState';
 import { PremiumLoader } from './PremiumLoader';
@@ -52,6 +52,20 @@ export const Projects = () => {
     },
     onError: (error: any) => setErrorText(error.message),
   });
+
+  const [deleteProject] = useMutation(DELETE_PROJECT, {
+    refetchQueries: [{ query: GET_PROJECTS, variables: { limit: 50 } }],
+  });
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      try {
+        await deleteProject({ variables: { id } });
+      } catch (err: any) {
+        alert(err.message || 'Failed to delete project');
+      }
+    }
+  };
 
   const resetForm = () => {
     setName('');
@@ -388,6 +402,13 @@ export const Projects = () => {
                   title="Edit Project"
                 >
                   <Edit2 size={18} />
+                </button>
+                <button 
+                  onClick={() => handleDelete(project.id)}
+                  className="p-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-red-400 rounded-xl transition-all"
+                  title="Delete Project"
+                >
+                  <Trash2 size={18} />
                 </button>
               </div>
             </div>

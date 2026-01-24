@@ -1,7 +1,7 @@
 {
   "name": "codewithwest-admin",
   "productName": "CodeWithWest Admin",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "CodeWithWest Admin profile management",
   "main": ".vite/build/main.js",
   "private": true,
